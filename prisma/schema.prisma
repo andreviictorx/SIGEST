@@ -38,6 +38,10 @@ model Aluno {
   nome      String
   email     String   @unique
   matricula String   @unique
+  dataNascimento DateTime?
+  telefone String?
+  endereco String?
+  ativo Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

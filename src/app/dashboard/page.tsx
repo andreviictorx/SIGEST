@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import CardDashboard from "@/components/card-dashboard";
 
 export default async function Dashboard() {
-
+ 
     const session = await auth();
 
 
