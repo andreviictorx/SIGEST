@@ -1,24 +1,18 @@
 "use server";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
+import { loginSchema } from "@/lib/schema";
 import { AuthError } from "next-auth";
 
-export type EstadoLogin =
-  | {
-      erro?: string;
-      sucesso?: boolean;
-    }
-  | undefined;
 
-export async function realizarLoginAction(
-  prevState: EstadoLogin,
-  formData: FormData
-) {
+export async function realizarLoginAction(data: loginSchema) {
   try {
-   
-    const email = formData.get("email");
-    const password = formData.get("password");
+    const result = loginSchema.safeParse(data)
+    if(!result.success){
+      return {erro: 'Dados inválidos enviados ao servidor'}
+    }
 
+    const {email, password} = result.data
     await signIn("credentials", {
       email,
       password,
@@ -38,3 +32,14 @@ export async function realizarLoginAction(
     throw error;
   }
 }
+
+export async function realizarLogoutAction() {
+  try {
+    
+    await signOut({ redirectTo: "/login" });
+  } catch (error) {
+    throw error;
+  }
+}
+
+

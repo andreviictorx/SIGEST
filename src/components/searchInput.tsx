@@ -50,7 +50,7 @@ export const SearchInput = ({ placeholder, text = "Buscar" }: SearchInputProps) 
       
         <Button
           type="button"
-          className="bg-[#10B981] hover:bg-[#059669] text-white border border-[#E2E8F0] shadow-sm font-medium"
+          className="bg-[#10B981] hover:bg-[#059669] text-white border border-[#E2E8F0] shadow-sm font-medium cursor-pointer"
         >
           {text}
         </Button>

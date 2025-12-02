@@ -50,7 +50,7 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
 
     return (
         <>
-            {/* 1. O Menu dos "3 pontinhos" */}
+          
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100">
@@ -65,7 +65,6 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                         <Pencil className="mr-2 h-4 w-4 text-blue-600" /> Editar
                     </DropdownMenuItem>
 
-                    {/* Ao clicar aqui, abrimos o Alert Dialog, não deletamos direto */}
                     <DropdownMenuItem
                         className="text-red-600 focus:text-red-700 cursor-pointer"
                         onClick={() => setIsAlertOpen(true)}
@@ -75,7 +74,7 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* 2. O Modal de Confirmação (Invisível até clicar em Inativar) */}
+            
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>
@@ -88,10 +87,9 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
 
-                        {/* O Botão que realmente deleta */}
                         <AlertDialogAction
                             onClick={(e) => {
-                                e.preventDefault(); // Impede fechar automático para mostrar loading
+                                e.preventDefault();
                                 handleDelete();
                             }}
                             className="bg-red-600 hover:bg-red-700 text-white"

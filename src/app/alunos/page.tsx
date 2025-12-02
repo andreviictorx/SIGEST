@@ -39,7 +39,7 @@ export default async function PageAlunos({ searchParams }: Props) {
     orderBy: { nome: 'asc' },
   });
 
-  // Função auxiliar para pegar iniciais (Ex: João Silva -> JS)
+
   const getInitials = (name: string) => {
     return name
       .split(" ")

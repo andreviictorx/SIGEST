@@ -64,8 +64,8 @@ export function AlunoForm() {
     return (
         <Dialog open={open} onOpenChange={onOpenChangeWrapper}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm">
-                    <UserPlus className="mr-2 h-4 w-4" /> Novo Aluno
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
+                    <UserPlus className="mr-2 h-4 w-4 " /> Novo Aluno
                 </Button>
             </DialogTrigger>
 
@@ -82,7 +82,6 @@ export function AlunoForm() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-4">
 
-                        {/* Campo Nome */}
                         <FormField
                             control={form.control}
                             name="nome"
@@ -165,7 +164,7 @@ export function AlunoForm() {
                                 type="submit"
                                 disabled={form.formState.isSubmitting}
 
-                                className="bg-green-600 hover:bg-green-700 text-white font-bold w-full sm:w-auto transition-all"
+                                className="bg-green-600 hover:bg-green-700 text-white font-bold w-full sm:w-auto transition-all cursor-pointer"
                             >
                                 {form.formState.isSubmitting ? (
                                     <>

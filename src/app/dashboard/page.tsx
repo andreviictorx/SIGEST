@@ -1,4 +1,4 @@
-import { auth } from "@/auth"; // 1. Importar a auth
+import { auth } from "@/auth"; 
 import { redirect } from "next/navigation";
 import CardDashboard from "@/components/card-dashboard";
 

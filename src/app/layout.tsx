@@ -2,14 +2,14 @@ import { Button } from "@/components/ui/button";
 import "./globals.css";
 import Link from "next/link";
 import { Toaster } from "@/components/ui/sonner";
+import { auth } from "@/auth";
+import { LogoutButton } from "@/components/logout-button";
 
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
 
+
+  const session = await auth()
   return (
     <html lang="en">
       <body className="bg-[#F8FAFC] min-h-screen overflow-x-hidden">
@@ -36,6 +36,12 @@ export default function RootLayout({
             <Button type='button' variant='default' asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full sm:w-auto">
               <Link href='/dashboard'>Dashboard</Link>
             </Button>
+
+            {session && (
+              <div className="ml-4 pl-4 border-l border-gray-700 ">
+                <LogoutButton/>
+              </div>
+            )}
           </nav>
         </header>
         <main className="flex-1 w-full max-w-7xl mx-auto p-8 box-border ">
