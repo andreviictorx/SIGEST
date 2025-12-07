@@ -84,7 +84,7 @@ export default async function PageAlunos({ searchParams }: Props) {
                 <TableHead>Matrícula</TableHead>
                 <TableHead>Telefone</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right pr-6">Ações</TableHead>
+                <TableHead className="text-right pr-10">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -137,8 +137,13 @@ export default async function PageAlunos({ searchParams }: Props) {
                     </TableCell>
 
                     <TableCell className="text-right pr-6">
-                  
-                      <ActionsCell aluno={aluno}/>
+                        <ActionsCell
+                          aluno={{
+                            id: aluno.id,
+                            nome: aluno.nome,
+                            ativo: aluno.ativo 
+                          }}
+                        />
                     </TableCell>
                   </TableRow>
                 ))

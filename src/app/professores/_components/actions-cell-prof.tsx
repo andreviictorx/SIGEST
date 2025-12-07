@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useTransition } from "react";
-import { Pencil, Trash2, Loader2, Ban } from "lucide-react";
+import { Pencil, Trash2, Loader2} from "lucide-react";
 import { toast } from "sonner";
-import { inativarAlunoAction } from "@/actions/alunos";
+import { inativarProfessorAction } from "@/actions/professor";
 
 import { Button } from "@/components/ui/button";
 import {
     Tooltip,
-    TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -22,25 +21,26 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { error } from "console";
 
 interface ActionsCellProps {
-    aluno: {
+    professor: {
         id: string;
         nome: string;
-        ativo: boolean; 
+        ativo: boolean;
     }
 }
 
-export function ActionsCell({ aluno }: ActionsCellProps) {
+export function ActionsCellProfessor({ professor }: ActionsCellProps) {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
     function handleInativar() {
         startTransition(async () => {
-            const resultado = await inativarAlunoAction(aluno.id);
+            const resultado = await inativarProfessorAction(professor.id);
 
             if (resultado.sucesso) {
-                toast.success("Status do aluno atualizado.");
+                toast.success("Status do professor atualizado.");
                 setIsAlertOpen(false);
             } else {
                 toast.error("Erro ao atualizar status.");
@@ -50,8 +50,6 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
 
     return (
         <div className="flex items-center justify-end gap-2">
-
-            {/* Botão Editar */}
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -64,11 +62,11 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                             <Pencil className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-                   
+
                 </Tooltip>
             </TooltipProvider>
 
-            
+
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -77,7 +75,7 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                             size="icon"
                             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                             onClick={() => setIsAlertOpen(true)}
-                            disabled={!aluno.ativo} 
+                            disabled={!professor.ativo}
                         >
                             <Trash2 className="h-4 w-4" />
                         </Button>
@@ -85,14 +83,14 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                 </Tooltip>
             </TooltipProvider>
 
-          
+
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Inativar Aluno?</AlertDialogTitle>
+                        <AlertDialogTitle>Inativar professor?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Você tem certeza que deseja inativar <strong>{aluno.nome}</strong>?
-                            O aluno não aparecerá mais nas listas ativas.
+                            Você tem certeza que deseja inativar <strong>{professor.nome}</strong>?
+                            O professor não aparecerá mais nas listas ativas.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

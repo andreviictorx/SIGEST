@@ -16,14 +16,13 @@ async function main() {
       password: senhaHash,
       role: "ADMIN",
     },
-    
   });
-  console.log("Admin criado:", admin);
+  console.log("Admin criado:");
 
   const alunosData = Array.from({ length: 10 }).map((_, i) => ({
     nome: `Aluno Teste ${i + 1}`,
     email: `aluno${i + 1}@escola.com`,
-    matricula: `2024${String(i + 1).padStart(4, "0")}`, 
+    matricula: `2024${String(i + 1).padStart(4, "0")}`,
     telefone: "11999999999",
     dataNascimento: new Date("2010-01-01"),
   }));
@@ -37,9 +36,36 @@ async function main() {
   }
   console.log("Alunos semeados com sucesso!");
 
+  const professoresData = Array.from({ length: 5 }).map((_, i) => ({
+    nome: `Professor Teste ${i + 1}`,
+    email: `prof${i + 1}@escola.com`,
+    matricula: `2020${String(i + 1).padStart(4, "0")}`,
+    telefone: "11999999999",
+  }));
+
+  for (const professor of professoresData) {
+    await prisma.professor.upsert({
+      where: { email: professor.email },
+      update: {},
+      create: professor,
+    });
+  }
+
+  console.log("Professores criados!");
+
+  const disciplinasData = Array.from({ length: 5 }).map((_, i) => ({
+    nome: `Disciplina Teste ${i + 1}`,
+    codigo: `DT25${i + 1}`,
+  }));
+
+  for (const disciplina of disciplinasData) {
+    await prisma.disciplina.upsert({
+      where: { codigo: disciplina.codigo },
+      update: {},
+      create: disciplina,
+    });
+  }
 }
-
-
 
 main()
   .then(async () => await prisma.$disconnect())

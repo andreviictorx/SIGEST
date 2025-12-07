@@ -27,7 +27,7 @@ interface ActionsCellProps {
     aluno: {
         id: string;
         nome: string;
-        ativo: boolean; 
+        ativo: boolean;
     }
 }
 
@@ -64,11 +64,11 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                             <Pencil className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-                   
+
                 </Tooltip>
             </TooltipProvider>
 
-            
+
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -77,7 +77,7 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                             size="icon"
                             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                             onClick={() => setIsAlertOpen(true)}
-                            disabled={!aluno.ativo} 
+                            disabled={!aluno.ativo}
                         >
                             <Trash2 className="h-4 w-4" />
                         </Button>
@@ -85,7 +85,7 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                 </Tooltip>
             </TooltipProvider>
 
-          
+
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>

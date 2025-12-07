@@ -5,49 +5,93 @@ import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/auth";
 import { LogoutButton } from "@/components/logout-button";
 
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
 
-export default async function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
+  const session = await auth();
 
+ 
+  const userInitials = session?.user?.name
+    ? session.user.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
+    : 'U';
 
-  const session = await auth()
   return (
-    <html lang="en">
-      <body className="bg-[#F8FAFC] min-h-screen overflow-x-hidden">
-        <header className="sticky top-0 z-50 flex items-center justify-between h-18 bg-stone-100 p-8 shadow-md">
-          <h1 className="text-2xl font-medium text-popover-foreground">SIGESTE - Sistema de Gestão Escolar</h1>
-          <nav className="flex gap-3">
-            <Button 
-            type='button' 
-            variant='default' 
-            asChild
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full sm:w-auto"
-            >
-              <Link href='/dashboard'>Dashboard</Link>
-            </Button>
-            <Button type='button' variant='default' asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full sm:w-auto">
-              <Link href='/alunos'>Alunos</Link>
-            </Button>
-            <Button type='button' variant='default' asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full sm:w-auto">
-              <Link href='/dashboard'>Dashboard</Link>
-            </Button>
-            <Button type='button' variant='default' asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full sm:w-auto">
-              <Link href='/dashboard'>Dashboard</Link>
-            </Button>
-            <Button type='button' variant='default' asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full sm:w-auto">
-              <Link href='/dashboard'>Dashboard</Link>
-            </Button>
+    <html lang="pt-BR">
+      <body className="min-h-screen flex flex-col font-sans antialiased text-slate-900 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative">
 
-            {session && (
-              <div className="ml-4 pl-4 border-l border-gray-700 ">
-                <LogoutButton/>
-              </div>
-            )}
-          </nav>
+        <div className="fixed inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[6rem_4rem]">
+          <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]"></div>
+        </div>
+
+       
+        <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/60">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-8 max-w-7xl mx-auto">
+
+            <div className="flex items-center gap-8">
+             
+              <Link href="/dashboard" className="flex items-center gap-2.5 group">
+                <div className="h-9 w-9 rounded-xl bg-linear-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200 group-hover:scale-105 transition-transform duration-200">
+                  <span className="text-white font-bold text-lg leading-none">S</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold tracking-tight text-slate-900 leading-tight">SIGESTE</span>
+                  <span className="text-[10px] uppercase tracking-widest font-semibold text-blue-600">Acadêmico</span>
+                </div>
+              </Link>
+
+             
+              <nav className="hidden md:flex items-center gap-1">
+                {['Dashboard', 'Alunos', 'Professores', 'Turmas', 'Disciplinas'].map((item) => (
+                  <Button
+                    key={item}
+                    variant="ghost"
+                    asChild
+                    className="text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50/80 px-4 py-2 h-9 rounded-full transition-all"
+                  >
+                    <Link href={`/${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}>
+                      {item}
+                    </Link>
+                  </Button>
+                ))}
+              </nav>
+            </div>
+
+  
+            <div className="flex items-center gap-4">
+              {session && (
+                <div className="flex items-center gap-3 pl-6 border-l border-slate-200 h-8">
+
+                  
+                  <div className="hidden sm:flex flex-col items-end mr-1">
+                    <span className="text-sm font-semibold text-slate-800 leading-none">
+                      {session.user?.name}
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-medium lowercase">
+                      {session.user?.email}
+                    </span>
+                  </div>
+
+                  
+                  <div className="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs shadow-sm">
+                    {userInitials}
+                  </div>
+
+                  <LogoutButton />
+                </div>
+              )}
+            </div>
+          </div>
         </header>
-        <main className="flex-1 w-full max-w-7xl mx-auto p-8 box-border ">
+
+        <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-10 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards">
           {children}
-          <Toaster richColors/>
+          <Toaster richColors position="top-right" closeButton theme="light" />
         </main>
+
+    
+        <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-100">
+          &copy; {new Date().getFullYear()} SIGESTE - Sistema de Gestão Escolar
+        </footer>
+
       </body>
     </html>
   );
