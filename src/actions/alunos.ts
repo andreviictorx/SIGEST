@@ -31,11 +31,11 @@ export async function criarAlunoAction(data: AlunoSchema) {
   }
 }
 
-export async function inativarAlunoAction(id: string) {
+export async function alterarStatusAlunoAction(id: string, novoStatus: boolean) {
   try {
     await prisma.aluno.update({
       where: { id },
-      data: { ativo: false },
+      data: { ativo: novoStatus },
     });
     revalidatePath("/alunos");
     return { sucesso: true };

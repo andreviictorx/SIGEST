@@ -29,3 +29,18 @@ export async function criarDisciplinaAction(data: DisciplinaSchema) {
     };
   }
 }
+
+
+export async function alterarStatusDisciplinaAction(id: string, novoStatus: boolean) {
+  try {
+    await prisma.disciplina.update({
+      where: { id },
+      data: { ativo: novoStatus },
+    });
+    revalidatePath("/disciplinas");
+    return { sucesso: true };
+  } catch (error) {
+    console.error(error);
+    return { sucesso: false, erro: "Erro ao inativar disciplina." };
+  }
+}

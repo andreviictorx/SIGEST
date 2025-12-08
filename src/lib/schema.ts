@@ -34,3 +34,13 @@ export const professorSchema = z.object({
 
 
 export type ProfessorSchema = z.infer<typeof professorSchema>
+
+
+export const turmaSchema = z.object({
+  nome: z.string().min(2, 'A turma deve ter no minimo 2 caracteres'),
+  codigo: z.string().min(2, 'O codigo deve ser maior que 2 caracteres'),
+  professorId: z.string().min(1, 'Selecione um professor'),
+  disciplinaId: z.string().min(1, 'Selecione uma disciplina')
+})
+
+export type TurmaSchema = z.infer<typeof turmaSchema>

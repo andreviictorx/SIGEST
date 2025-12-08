@@ -1,14 +1,10 @@
 'use client';
-
 import { useState, useTransition } from "react";
-import { Pencil, Trash2, Loader2, Ban } from "lucide-react";
+import { Pencil, Trash2, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
-import { inativarAlunoAction } from "@/actions/alunos";
-
 import { Button } from "@/components/ui/button";
 import {
     Tooltip,
-    TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -22,25 +18,31 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { alterarStatusDisciplinaAction } from "@/actions/disciplina";
 
 interface ActionsCellProps {
-    aluno: {
+    disciplina: {
         id: string;
         nome: string;
         ativo: boolean;
     }
 }
 
-export function ActionsCell({ aluno }: ActionsCellProps) {
+export function ActionsCellDisciplinas({ disciplina }: ActionsCellProps) {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
-    function handleInativar() {
+    const novoStatus = !disciplina.ativo;
+    const acaoTexto = disciplina.ativo ? "Inativar" : "Reativar";
+    const corBotao = disciplina.ativo ? "text-red-600 hover:text-red-700 hover:bg-red-50" : "text-green-600 hover:text-green-700 hover:bg-green-50";
+    const corConfirmacao = disciplina.ativo ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700";
+
+    function handleStatusChange() {
         startTransition(async () => {
-            const resultado = await inativarAlunoAction(aluno.id);
+            const resultado = await alterarStatusDisciplinaAction(disciplina.id, novoStatus);
 
             if (resultado.sucesso) {
-                toast.success("Status do aluno atualizado.");
+                toast.success("Status da disciplina atualizado.");
                 setIsAlertOpen(false);
             } else {
                 toast.error("Erro ao atualizar status.");
@@ -51,20 +53,19 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
     return (
         <div className="flex items-center justify-end gap-2">
 
-            {/* Botão Editar */}
+
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
                             onClick={() => toast.info("Edição em breve...")}
                         >
                             <Pencil className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-
                 </Tooltip>
             </TooltipProvider>
 
@@ -75,11 +76,14 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className={`h-8 w-8 ${corBotao} cursor-pointer`}
                             onClick={() => setIsAlertOpen(true)}
-                            disabled={!aluno.ativo}
                         >
-                            <Trash2 className="h-4 w-4" />
+                            {disciplina.ativo ? (
+                                <Trash2 className="h-4 w-4" />
+                            ) : (
+                                <RefreshCcw className="h-4 w-4" />
+                            )}
                         </Button>
                     </TooltipTrigger>
                 </Tooltip>
@@ -89,23 +93,25 @@ export function ActionsCell({ aluno }: ActionsCellProps) {
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Inativar Aluno?</AlertDialogTitle>
+                        <AlertDialogTitle>{acaoTexto} Disciplina?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Você tem certeza que deseja inativar <strong>{aluno.nome}</strong>?
-                            O aluno não aparecerá mais nas listas ativas.
+                            {disciplina.ativo
+                                ? `Você tem certeza que deseja inativar ${disciplina.nome}? Ela não aparecerá mais nas listas ativas.`
+                                : `Você deseja reativar o cadastro de ${disciplina.nome}? Ela voltará a aparecer nas listas.`
+                            }
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogCancel className="cursor-pointer">Cancelar</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={(e) => {
                                 e.preventDefault();
-                                handleInativar();
+                                handleStatusChange();
                             }}
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className={`${corConfirmacao} text-white cursor-pointer`}
                             disabled={isPending}
                         >
-                            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sim, inativar"}
+                            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : `Sim, ${acaoTexto.toLowerCase()}`}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

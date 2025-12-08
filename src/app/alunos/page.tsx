@@ -10,11 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback} from "@/components/ui/avatar";
 import { AlunoForm } from "./_components/aluno-form";
 import { SearchInput } from "@/components/searchInput"; 
-import { ActionsCell } from "./_components/actions-cell";
+import {ActionsCellAluno } from "./_components/actions-cell-aluno";
+import { Badge } from "@/components/ui/badge";;
 
 
 type Props = {
@@ -82,7 +82,7 @@ export default async function PageAlunos({ searchParams }: Props) {
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-[300px] pl-6">Aluno</TableHead>
                 <TableHead>Matrícula</TableHead>
-                <TableHead>Telefone</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right pr-10">Ações</TableHead>
               </TableRow>
@@ -95,56 +95,84 @@ export default async function PageAlunos({ searchParams }: Props) {
                   </TableCell>
                 </TableRow>
               ) : (
-                alunos.map((aluno) => (
-                  <TableRow key={aluno.id} className="hover:bg-slate-50 group transition-colors">
-                    
-                    <TableCell className="pl-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-10 w-10 border border-slate-200">
-                         
-                          <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
-                            {getInitials(aluno.nome)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
-                            {aluno.nome}
-                          </span>
-                          <span className="text-xs text-slate-500">{aluno.email}</span>
-                        </div>
-                      </div>
-                    </TableCell>
+                  alunos.map((aluno) => (
+                    <TableRow key={aluno.id} className="hover:bg-slate-50 group transition-colors">
+                      {aluno.ativo ? (
+                        <TableCell className="pl-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <Avatar className="h-10 w-10 border border-slate-200">
 
-                 
-                    <TableCell className="font-mono text-slate-600">
-                      {aluno.matricula}
-                    </TableCell>
+                              <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
+                                {getInitials(aluno.nome)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                {aluno.nome}
+                              </span>
 
-                    <TableCell className="text-slate-600">
-                      {aluno.telefone || "-"}
-                    </TableCell>
+                            </div>
+                          </div>
+                        </TableCell>
+                      ) : (
+                        <TableCell className="pl-6 py-4">
+                          <div className="flex items-center gap-4 opacity-80 line-through">
+                            <Avatar className="h-10 w-10 border border-slate-200 opacity-80">
 
-                    <TableCell>
-                      <Badge 
-                        variant={aluno.ativo ? "default" : "destructive"}
-                        className={aluno.ativo 
-                          ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200 shadow-none" 
-                          : "bg-red-100 text-red-700 hover:bg-red-200 border-red-200 shadow-none"
-                        }
-                      >
-                        {aluno.ativo ? "Matriculado" : "Inativo"}
-                      </Badge>
-                    </TableCell>
+                              <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
+                                {getInitials(aluno.nome)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col opacity-80">
+                              <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                {aluno.nome}
+                              </span>
 
-                    <TableCell className="text-right pr-6">
-                        <ActionsCell
-                          aluno={{
-                            id: aluno.id,
-                            nome: aluno.nome,
-                            ativo: aluno.ativo 
-                          }}
-                        />
-                    </TableCell>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                      )}
+
+                      {aluno.ativo ? (
+                        <TableCell className="font-mono text-slate-600">
+                          {aluno.matricula}
+                        </TableCell>
+                      ) : (
+                        <TableCell className="font-mono text-slate-600 opacity-90 line-through">
+                          {aluno.matricula}
+                        </TableCell>
+                      )}
+
+                      {aluno.ativo ? (
+                        <TableCell className="font-mono text-slate-600">
+                          {aluno.email}
+                        </TableCell>
+                      ) : (
+                        <TableCell className="font-mono text-slate-600 opacity-90 line-through">
+                          {aluno.email}
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        <Badge
+                          variant={aluno.ativo ? "default" : "secondary"}
+                          className={aluno.ativo
+                            ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200 shadow-none"
+                            : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-none"
+                          }
+                        >
+                          {aluno.ativo ? "Ativo" : "Inativo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                          <ActionsCellAluno
+                            aluno={{
+                              id: aluno.id,
+                              nome: aluno.nome,
+                              ativo: aluno.ativo 
+                            }}
+                          />
+                      </TableCell>
                   </TableRow>
                 ))
               )}

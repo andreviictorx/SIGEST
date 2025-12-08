@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { SearchInput } from "@/components/searchInput";
 import { DisciplinaForm } from "./_components/disciplina-form";
+import { ActionsCellDisciplinas } from "./_components/actions-cell-turma";
+import { Badge } from "@/components/ui/badge";
 
 
 type Props = {
@@ -33,8 +35,8 @@ export default async function PageDisciplinas({ searchParams }: Props) {
             OR: [
                 {
                     nome: {
-                        contains: query,       
-                        mode: "insensitive"    
+                        contains: query,
+                        mode: "insensitive"
                     }
                 },
                 {
@@ -46,7 +48,7 @@ export default async function PageDisciplinas({ searchParams }: Props) {
             ]
         },
         orderBy: {
-            nome: 'asc' 
+            nome: 'asc'
         },
     });
 
@@ -71,7 +73,7 @@ export default async function PageDisciplinas({ searchParams }: Props) {
                 <div className="flex items-center gap-3">
 
                     <SearchInput placeholder="Buscar por nome, email..." />
-                    <DisciplinaForm/>
+                    <DisciplinaForm />
                 </div>
             </div>
 
@@ -94,6 +96,7 @@ export default async function PageDisciplinas({ searchParams }: Props) {
                                 <TableHead className="w-[300px] pl-6">Disciplina</TableHead>
                                 <TableHead>Codigo</TableHead>
                                 <TableHead>Carga Horaria</TableHead>
+                                <TableHead>Status</TableHead>
                                 <TableHead className="text-right pr-6">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -107,36 +110,82 @@ export default async function PageDisciplinas({ searchParams }: Props) {
                             ) : (
                                 disciplinas.map((disciplina) => (
                                     <TableRow key={disciplina.id} className="hover:bg-slate-50 group transition-colors">
+                                        {disciplina.ativo ? (
+                                            <TableCell className="pl-6 py-4">
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar className="h-10 w-10 border border-slate-200">
 
-                                        <TableCell className="pl-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <Avatar className="h-10 w-10 border border-slate-200">
+                                                        <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
+                                                            {getInitials(disciplina.nome)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                                            {disciplina.nome}
+                                                        </span>
 
-                                                    <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
-                                                        {getInitials(disciplina.nome)}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
-                                                        {disciplina.nome}
-                                                    </span>
-            
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </TableCell>
+                                        ) : (
+                                            <TableCell className="pl-6 py-4">
+                                                <div className="flex items-center gap-4 opacity-80 line-through">
+                                                    <Avatar className="h-10 w-10 border border-slate-200 opacity-80">
+
+                                                        <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
+                                                            {getInitials(disciplina.nome)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col opacity-80">
+                                                        <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                                            {disciplina.nome}
+                                                        </span>
+
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+
+                                        )}
+
+                                        {disciplina.ativo ? (
+                                            <TableCell className="font-mono text-slate-600">
+                                                {disciplina.codigo}
+                                            </TableCell>
+                                        ) : (
+                                            <TableCell className="font-mono text-slate-600 opacity-90 line-through">
+                                                {disciplina.codigo}
+                                            </TableCell>
+                                        )}
+
+                                        {disciplina.ativo ? (
+                                            <TableCell className="font-mono text-slate-600">
+                                                {disciplina.cargaHoraria}
+                                            </TableCell>
+                                        ) : (
+                                            <TableCell className="font-mono text-slate-600 opacity-90 line-through">
+                                                {disciplina.cargaHoraria}
+                                            </TableCell>
+                                        )}
+                                        <TableCell>
+                                            <Badge
+                                                variant={disciplina.ativo ? "default" : "secondary"}
+                                                className={disciplina.ativo
+                                                    ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200 shadow-none"
+                                                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-none"
+                                                }
+                                            >
+                                                {disciplina.ativo ? "Ativa" : "Encerrada"}
+                                            </Badge>
                                         </TableCell>
 
-
-                                        <TableCell className="font-mono text-slate-600">
-                                            {disciplina.codigo}
-                                        </TableCell>
-
-                                        <TableCell className="font-mono text-slate-600">
-                                            {disciplina.cargaHoraria}
-                                        </TableCell>
-
-                                        <TableCell className="text-right pr-6">
-
-                                            ....
+                                        <TableCell>
+                                            <ActionsCellDisciplinas
+                                                disciplina={{
+                                                    id: disciplina.id,
+                                                    nome: disciplina.nome,
+                                                    ativo: disciplina.ativo
+                                                }}
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 ))

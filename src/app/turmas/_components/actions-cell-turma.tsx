@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useTransition } from "react";
-import { Pencil, Trash2, Loader2, RefreshCcw } from "lucide-react";
+import { Pencil, Trash2, Loader2, RefreshCcw } from "lucide-react"; 
 import { toast } from "sonner";
-import { alterarStatusProfessorAction } from "@/actions/professor";
+import { alterarStatusTurmaAction } from "@/actions/turma"; 
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,29 +23,29 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface ActionsCellProps {
-    professor: {
+    turma: {
         id: string;
         nome: string;
         ativo: boolean;
     }
 }
 
-export function ActionsCellProfessor({ professor }: ActionsCellProps) {
+export function ActionsCellTurma({ turma }: ActionsCellProps) {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
-
-    const novoStatus = !professor.ativo;
-    const acaoTexto = professor.ativo ? "Inativar" : "Reativar";
-    const corBotao = professor.ativo ? "text-red-600 hover:text-red-700 hover:bg-red-50" : "text-green-600 hover:text-green-700 hover:bg-green-50";
-    const corConfirmacao = professor.ativo ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700";
+   
+    const novoStatus = !turma.ativo;
+    const acaoTexto = turma.ativo ? "Inativar" : "Reativar";
+    const corBotao = turma.ativo ? "text-red-600 hover:text-red-700 hover:bg-red-50" : "text-green-600 hover:text-green-700 hover:bg-green-50";
+    const corConfirmacao = turma.ativo ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700";
 
     function handleStatusChange() {
         startTransition(async () => {
-            const resultado = await alterarStatusProfessorAction(professor.id, novoStatus);
+            const resultado = await alterarStatusTurmaAction(turma.id, novoStatus);
 
             if (resultado.sucesso) {
-                toast.success(`Professor ${acaoTexto.toLowerCase()} com sucesso.`);
+                toast.success(`Turma ${acaoTexto.toLowerCase()} com sucesso.`);
                 setIsAlertOpen(false);
             } else {
                 toast.error("Erro ao atualizar status.");
@@ -56,7 +56,7 @@ export function ActionsCellProfessor({ professor }: ActionsCellProps) {
     return (
         <div className="flex items-center justify-end gap-2">
 
-
+    
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -72,7 +72,7 @@ export function ActionsCellProfessor({ professor }: ActionsCellProps) {
                 </Tooltip>
             </TooltipProvider>
 
-
+           
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -82,7 +82,7 @@ export function ActionsCellProfessor({ professor }: ActionsCellProps) {
                             className={`h-8 w-8 ${corBotao} cursor-pointer`}
                             onClick={() => setIsAlertOpen(true)}
                         >
-                            {professor.ativo ? (
+                            {turma.ativo ? (
                                 <Trash2 className="h-4 w-4" />
                             ) : (
                                 <RefreshCcw className="h-4 w-4" />
@@ -92,15 +92,15 @@ export function ActionsCellProfessor({ professor }: ActionsCellProps) {
                 </Tooltip>
             </TooltipProvider>
 
-
+            
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{acaoTexto} Professor?</AlertDialogTitle>
+                        <AlertDialogTitle>{acaoTexto} Turma?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            {professor.ativo
-                                ? `Você tem certeza que deseja inativar ${professor.nome}? Ele não aparecerá mais nas listas ativas.`
-                                : `Você deseja reativar o cadastro de ${professor.nome}? Ele voltará a aparecer nas listas.`
+                            {turma.ativo
+                                ? `Você tem certeza que deseja inativar ${turma.nome}? Ele não aparecerá mais nas listas ativas.`
+                                : `Você deseja reativar o cadastro de ${turma.nome}? Ela voltará a aparecer nas listas.`
                             }
                         </AlertDialogDescription>
                     </AlertDialogHeader>

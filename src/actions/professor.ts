@@ -29,11 +29,11 @@ export async function criarProfessorAction(data: ProfessorSchema) {
   }
 }
 
-export async function inativarProfessorAction(id: string) {
+export async function alterarStatusProfessorAction(id: string, novoStatus: boolean) {
   try {
     await prisma.professor.update({
       where: { id },
-      data: { ativo: false },
+      data: { ativo: novoStatus },
     });
     revalidatePath("/professores");
     return { sucesso: true };

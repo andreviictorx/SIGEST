@@ -91,37 +91,67 @@ export default async function PageProfessores({ searchParams }: Props) {
                             {professor.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-24 text-center text-slate-500">
-                                        Nenhuma disciplina encontrada.
+                                        Nenhum professor encontrado.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 professor.map((prof) => (
                                     <TableRow key={prof.id} className="hover:bg-slate-50 group transition-colors">
+                                        {prof.ativo ? (
+                                            <TableCell className="pl-6 py-4">
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar className="h-10 w-10 border border-slate-200">
 
-                                        <TableCell className="pl-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <Avatar className="h-10 w-10 border border-slate-200">
+                                                        <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
+                                                            {getInitials(prof.nome)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                                            {prof.nome}
+                                                        </span>
 
-                                                    <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
-                                                        {getInitials(prof.nome)}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
-                                                        {prof.nome}
-                                                    </span>
-
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </TableCell>
+                                            </TableCell>
+                                        ): (
+                                                <TableCell className="pl-6 py-4">
+                                                    <div className="flex items-center gap-4 opacity-80 line-through">
+                                                        <Avatar className="h-10 w-10 border border-slate-200 opacity-80">
 
-                                        <TableCell className="font-mono text-slate-600">
-                                            {prof.email}
-                                        </TableCell>
+                                                            <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
+                                                                {getInitials(prof.nome)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col opacity-80">
+                                                            <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                                                {prof.nome}
+                                                            </span>
 
-                                        <TableCell className="font-mono text-slate-600">
-                                            {prof.matricula}
-                                        </TableCell>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                        )}
+                                       
+                                        {prof.ativo ? (
+                                            <TableCell className="font-mono text-slate-600">
+                                                {prof.email}
+                                            </TableCell>
+                                        ):(
+                                                <TableCell className="font-mono text-slate-600 opacity-90 line-through">
+                                                    {prof.email}
+                                                </TableCell>
+                                        )}
+                                        
+                                        {prof.ativo ? (
+                                            <TableCell className="font-mono text-slate-600">
+                                                {prof.matricula}
+                                            </TableCell>
+                                        ) : (
+                                                <TableCell className="font-mono text-slate-600 opacity-90 line-through">
+                                                {prof.matricula}
+                                            </TableCell>
+                                        )}
 
                                         <TableCell>
                                            <ActionsCellProfessor
