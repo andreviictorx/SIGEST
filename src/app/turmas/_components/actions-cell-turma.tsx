@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from "react";
-import { Pencil, Trash2, Loader2, RefreshCcw } from "lucide-react"; 
+import { Pencil, Trash2, Loader2, RefreshCcw, NotebookTabs } from "lucide-react"; 
 import { toast } from "sonner";
 import { alterarStatusTurmaAction } from "@/actions/turma"; 
 
@@ -22,12 +22,14 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+
 interface ActionsCellProps {
     turma: {
         id: string;
         nome: string;
         ativo: boolean;
     }
+
 }
 
 export function ActionsCellTurma({ turma }: ActionsCellProps) {
@@ -83,7 +85,7 @@ export function ActionsCellTurma({ turma }: ActionsCellProps) {
                             onClick={() => setIsAlertOpen(true)}
                         >
                             {turma.ativo ? (
-                                <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-4 w-4" />
                             ) : (
                                 <RefreshCcw className="h-4 w-4" />
                             )}

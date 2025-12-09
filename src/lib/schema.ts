@@ -44,3 +44,9 @@ export const turmaSchema = z.object({
 })
 
 export type TurmaSchema = z.infer<typeof turmaSchema>
+
+export const matriculaSchema = z.object({
+  alunoId: z.string().min(1, 'selecione uma turma')
+})
+
+export type MatriculaSchema = z.infer<typeof matriculaSchema>

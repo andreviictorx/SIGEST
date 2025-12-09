@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { SearchInput } from "@/components/searchInput";
 import { TurmaForm } from "./_components/turma-form";
 import { ActionsCellTurma } from "./_components/actions-cell-turma";
+import Link from "next/link";
+import { NotebookTabs } from "lucide-react";
 
 type Props = {
     searchParams: Promise<{ q?: string }>;
@@ -80,6 +82,7 @@ export default async function PageTurmas({ searchParams }: Props) {
                                 <TableHead className="min-w-[200px]">Professor Responsável</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right pr-10">Ações</TableHead>
+                                <TableHead className="">Detalhes</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -147,6 +150,11 @@ export default async function PageTurmas({ searchParams }: Props) {
                                                 />
 
                                             </span>
+                                        </TableCell>
+                                        <TableCell className="pl-6">
+                                            <Link href={`/turmas/${turma.id}`} className="hover:text-blue-600 hover:underline">
+                                                <NotebookTabs className="h-4 w-4 text-green-600 hover:text-green-700 hover:bg-green-50" />
+                                            </Link>
                                         </TableCell>
                                     </TableRow>
                                 ))
