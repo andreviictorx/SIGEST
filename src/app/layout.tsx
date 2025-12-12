@@ -9,25 +9,19 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   const session = await auth();
 
- 
   const userInitials = session?.user?.name
     ? session.user.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
     : 'U';
 
   return (
     <html lang="pt-BR">
-      <body className="min-h-screen flex flex-col font-sans antialiased text-slate-900 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative">
+      <body className="min-h-screen flex flex-col font-sans antialiased text-slate-900 bg-slate-50 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative">
 
-        <div className="fixed inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[6rem_4rem]">
-          <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]"></div>
-        </div>
-
-       
-        <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/60">
+        <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/60">
           <div className="flex h-16 items-center justify-between px-4 sm:px-8 max-w-7xl mx-auto">
 
             <div className="flex items-center gap-8">
-             
+
               <Link href="/dashboard" className="flex items-center gap-2.5 group">
                 <div className="h-9 w-9 rounded-xl bg-linear-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200 group-hover:scale-105 transition-transform duration-200">
                   <span className="text-white font-bold text-lg leading-none">S</span>
@@ -38,7 +32,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 </div>
               </Link>
 
-             
+
               <nav className="hidden md:flex items-center gap-1">
                 {['Dashboard', 'Alunos', 'Professores', 'Turmas', 'Disciplinas'].map((item) => (
                   <Button
@@ -55,12 +49,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
               </nav>
             </div>
 
-  
+
             <div className="flex items-center gap-4">
               {session && (
                 <div className="flex items-center gap-3 pl-6 border-l border-slate-200 h-8">
 
-                  
+
                   <div className="hidden sm:flex flex-col items-end mr-1">
                     <span className="text-sm font-semibold text-slate-800 leading-none">
                       {session.user?.name}
@@ -70,8 +64,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                     </span>
                   </div>
 
-                  
-                  <div className="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs shadow-sm">
+
+                  <div className="h-9 w-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs shadow-sm">
                     {userInitials}
                   </div>
 
@@ -82,13 +76,14 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-10 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards">
+     
+        <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-10 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards">
           {children}
           <Toaster richColors position="top-right" closeButton theme="light" />
         </main>
 
-    
-        <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-100">
+
+        <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-200 bg-white/50">
           &copy; {new Date().getFullYear()} SIGESTE - Sistema de Gestão Escolar
         </footer>
 

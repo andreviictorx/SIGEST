@@ -117,7 +117,6 @@ export default async function detalhesTurmas({ params }: PageProps) {
                         <CardContent className="p-0">
                             <ul className="divide-y divide-slate-100">
                                 {turma.matriculas.map((matricula) => (
-                                    // Passamos o objeto inteiro da matrícula para o componente
                                     <MatriculaItem key={matricula.id} matricula={matricula} />
                                 ))}
                             </ul>
