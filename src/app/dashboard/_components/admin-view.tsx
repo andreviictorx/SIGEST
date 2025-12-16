@@ -5,7 +5,7 @@ import { ActivityIcon, BookOpen, GraduationCap, History, Users } from "lucide-re
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Ajuste o import do Avatar se necessário
 
 export async function AdminView() {
-    // 1. Lógica de Banco de Dados (Server Side)
+
     const [quantidadeTotalAlunos, quantidadeTotalProfessores, quantidadeTurmasAtivas, matriculasRecentes] = await Promise.all([
         prisma.aluno.count({ where: { ativo: true } }),
         prisma.professor.count({ where: { ativo: true } }),
@@ -25,7 +25,7 @@ export async function AdminView() {
         })
     ]);
 
-    // Helpers de formatação
+
     const formatDate = (date: Date) => {
         return new Intl.DateTimeFormat('pt-BR', {
             day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
@@ -34,7 +34,6 @@ export async function AdminView() {
 
     const getInitials = (name: string) => name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
 
-    // 2. O Layout Visual (JSX)
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
@@ -44,7 +43,6 @@ export async function AdminView() {
                 </div>
             </div>
 
-            {/* Cards Superiores */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <CardDashboard
                     value={quantidadeTotalAlunos}
@@ -67,11 +65,7 @@ export async function AdminView() {
                     icon={<History className="h-4 w-4" />}
                 />
             </div>
-
-            {/* Área Inferior (Lista + Placeholder de Gráfico) */}
             <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7">
-
-                {/* Lista de Matrículas (Ocupa 4 colunas) */}
                 <Card className="col-span-4 border-slate-200 shadow-sm">
                     <CardHeader>
                         <CardTitle className="text-lg font-bold text-slate-800">Atividade Recente</CardTitle>

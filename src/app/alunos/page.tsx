@@ -1,185 +1,80 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Avatar, AvatarFallback} from "@/components/ui/avatar";
-import { AlunoForm } from "./_components/aluno-form";
-import { SearchInput } from "@/components/searchInput"; 
-import {ActionsCellAluno } from "./_components/actions-cell-aluno";
-import { Badge } from "@/components/ui/badge";;
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Plus, SlidersHorizontal } from "lucide-react";
+import { AlunoCard } from "./_components/aluno-card";
+import { AlunosToolbar } from "./_components/alunos-toolbar";
 
 
 type Props = {
-    searchParams: Promise<{ q?: string }>;
-}
+  searchParams: Promise<{ q?: string; status?: string }>;
+};
 
-export default async function PageAlunos({ searchParams }: Props) {
+export default async function AlunosPage(props: Props) {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const params = await searchParams;
-  const query = params?.q || "";
+  const searchParams = await props.searchParams;
 
-  const alunos = await prisma.aluno.findMany({
-    where: {
-      OR: [
+  const query = searchParams?.q || "";
+  const statusFilter = searchParams?.status || "todos";
+
+
+  const whereCondition: any = {
+    OR: query
+      ? [
         { nome: { contains: query, mode: "insensitive" } },
-        { email: { contains: query, mode: "insensitive" } },
-        { matricula: { contains: query } },
-      ],
-    },
-    orderBy: { nome: 'asc' },
-  });
-
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+        { matricula: { contains: query, mode: "insensitive" } },
+      ]
+      : undefined,
   };
 
+  if (statusFilter === "ativos") {
+    whereCondition.ativo = true;
+  } else if (statusFilter === "inativos") {
+    whereCondition.ativo = false;
+  }
+
+
+  const alunos = await prisma.aluno.findMany({
+    where: whereCondition,
+    orderBy: { nome: "asc" },
+    include: {
+      matriculas: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        include: {
+          turma: {
+            select: { nome: true }
+          }
+        }
+      }
+    }
+  });
+
   return (
-    <div className="p-8 space-y-8 bg-slate-50/50 min-h-screen">
-   
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Alunos</h1>
-          <p className="text-slate-500">Gerencie as matrículas e dados dos estudantes.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          
-          <SearchInput placeholder="Buscar por nome, email..." />
-          <AlunoForm />
-        </div>
-      </div>
+    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
+      <AlunosToolbar />
 
-      <Card className="border-slate-200 shadow-sm bg-white">
-        <CardHeader className="border-b border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle>Listagem Geral</CardTitle>
-              <CardDescription>
-                Mostrando {alunos.length} registros encontrados.
-              </CardDescription>
-            </div>
+      {alunos.length === 0 ? (
+        <div className="text-center py-20 bg-white rounded-4xl border border-slate-100 shadow-sm mt-4">
+          <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Search className="h-8 w-8 text-slate-400" />
           </div>
-        </CardHeader>
-        
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[300px] pl-6">Aluno</TableHead>
-                <TableHead>Matrícula</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right pr-10">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {alunos.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-slate-500">
-                    Nenhum aluno encontrado.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                  alunos.map((aluno) => (
-                    <TableRow key={aluno.id} className="hover:bg-slate-50 group transition-colors">
-                      {aluno.ativo ? (
-                        <TableCell className="pl-6 py-4">
-                          <div className="flex items-center gap-4">
-                            <Avatar className="h-10 w-10 border border-slate-200">
-
-                              <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
-                                {getInitials(aluno.nome)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
-                                {aluno.nome}
-                              </span>
-
-                            </div>
-                          </div>
-                        </TableCell>
-                      ) : (
-                        <TableCell className="pl-6 py-4">
-                          <div className="flex items-center gap-4 opacity-80 line-through">
-                            <Avatar className="h-10 w-10 border border-slate-200 opacity-80">
-
-                              <AvatarFallback className="bg-blue-50 text-blue-700 font-bold">
-                                {getInitials(aluno.nome)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col opacity-80">
-                              <span className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
-                                {aluno.nome}
-                              </span>
-
-                            </div>
-                          </div>
-                        </TableCell>
-
-                      )}
-
-                      {aluno.ativo ? (
-                        <TableCell className="font-mono text-slate-600">
-                          {aluno.matricula}
-                        </TableCell>
-                      ) : (
-                        <TableCell className="font-mono text-slate-600 opacity-90 line-through">
-                          {aluno.matricula}
-                        </TableCell>
-                      )}
-
-                      {aluno.ativo ? (
-                        <TableCell className="font-mono text-slate-600">
-                          {aluno.email}
-                        </TableCell>
-                      ) : (
-                        <TableCell className="font-mono text-slate-600 opacity-90 line-through">
-                          {aluno.email}
-                        </TableCell>
-                      )}
-                      <TableCell>
-                        <Badge
-                          variant={aluno.ativo ? "default" : "secondary"}
-                          className={aluno.ativo
-                            ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200 shadow-none"
-                            : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-none"
-                          }
-                        >
-                          {aluno.ativo ? "Ativo" : "Inativo"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right pr-6">
-                          <ActionsCellAluno
-                            aluno={{
-                              id: aluno.id,
-                              nome: aluno.nome,
-                              ativo: aluno.ativo 
-                            }}
-                          />
-                      </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+          <h3 className="text-slate-900 font-bold text-lg">Nenhum aluno encontrado</h3>
+          <p className="text-slate-500 max-w-xs mx-auto mt-2">
+            Tente ajustar os filtros ou a busca por nome/matrícula.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 mt-4">
+          {alunos.map((aluno) => (
+            <AlunoCard key={aluno.id} data={aluno} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
