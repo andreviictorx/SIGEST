@@ -9,9 +9,20 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   const session = await auth();
 
-  const userInitials = session?.user?.name
-    ? session.user.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
-    : 'U';
+  const userInitials = session?.user?.name ? session.user.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() : 'U';
+
+  const menuItems = [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Alunos', href: '/alunos' },
+    { label: 'Professores', href: '/professores' },
+    { label: 'Turmas', href: '/turmas' },
+    { label: 'Disciplinas', href: '/disciplinas' },
+  ];
+
+
+  if (session?.user?.role === 'ADMIN') {
+    menuItems.push({ label: 'Usuários', href: '/admin/usuarios' });
+  }
 
   return (
     <html lang="pt-BR">
@@ -32,17 +43,17 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 </div>
               </Link>
 
-
               <nav className="hidden md:flex items-center gap-1">
-                {['Dashboard', 'Alunos', 'Professores', 'Turmas', 'Disciplinas'].map((item) => (
+
+                {menuItems.map((item) => (
                   <Button
-                    key={item}
+                    key={item.label}
                     variant="ghost"
                     asChild
                     className="text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50/80 px-4 py-2 h-9 rounded-full transition-all"
                   >
-                    <Link href={`/${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}>
-                      {item}
+                    <Link href={item.href}>
+                      {item.label}
                     </Link>
                   </Button>
                 ))}
@@ -76,7 +87,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           </div>
         </header>
 
-     
+
         <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-10 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards">
           {children}
           <Toaster richColors position="top-right" closeButton theme="light" />

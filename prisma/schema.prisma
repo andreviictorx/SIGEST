@@ -73,6 +73,10 @@ model Disciplina {
 
 model Matricula {
  id String @id @default(cuid())
+ nota1 Float?
+ nota2 Float?
+ nota3 Float?
+ frequencia Int?
  alunoId String
  aluno Aluno @relation(fields: [alunoId], references: [id])
  turmaId String

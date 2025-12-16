@@ -50,3 +50,12 @@ export const matriculaSchema = z.object({
 })
 
 export type MatriculaSchema = z.infer<typeof matriculaSchema>
+
+export const usuarioSchema = z.object({
+  name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
+  email: z.string().email("Email inválido"),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+  role: z.enum(["ADMIN", "PROFESSOR", "ALUNO"]),
+});
+
+export type UsuarioSchema = z.infer<typeof usuarioSchema>;

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Matricula" ADD COLUMN     "frequencia" INTEGER,
+ADD COLUMN     "nota1" DOUBLE PRECISION,
+ADD COLUMN     "nota2" DOUBLE PRECISION,
+ADD COLUMN     "nota3" DOUBLE PRECISION;
