@@ -1,25 +1,23 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { School, CreditCard } from "lucide-react";
-import { ActionsCellAluno } from "./actions-cell-aluno";
+import { ActionsCellProfessor } from "./actions-cell-prof";
 
 
-interface AlunoCardProps {
+interface ProfessorCardProps {
     data: {
         id: string;
         nome: string;
         matricula: string;
         ativo: boolean;
-        matriculas: {
-            turma: {
-                nome: string;
-            };
-        }[];
+        turmas:{
+            nome:string
+        }[]
     };
 }
 
-export function AlunoCard({ data }: AlunoCardProps) {
+export function ProfessorCard({ data }: ProfessorCardProps) {
     const iniciais = data.nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
-    const turmaAtual = data.matriculas[0]?.turma.nome || "Sem turmas";
+    const turmaAtual = data.turmas[0]?.nome|| "Sem turmas";
     const statusColor = data.ativo ? "bg-green-500" : "bg-red-500";
     const badgeStyle = data.ativo
         ? "bg-green-100 text-green-700 border-green-200"
@@ -62,7 +60,7 @@ export function AlunoCard({ data }: AlunoCardProps) {
             </div>
 
             <div className="shrink-0">
-                <ActionsCellAluno aluno={data} />
+                <ActionsCellProfessor professor={data} />
             </div>
         </div>
     );

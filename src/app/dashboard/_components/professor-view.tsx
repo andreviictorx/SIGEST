@@ -59,7 +59,7 @@ export async function ProfessorView({ email }: { email: string }) {
                                     <div className="text-sm text-slate-500">
                                         <span className="font-bold text-slate-900">{turma._count.matriculas}</span> alunos
                                     </div>
-                                    <Button size="sm" className="bg-slate-900 hover:bg-slate-800 text-xs" asChild>
+                                    <Button size="sm" className="bg-slate-900 hover:bg-slate-800 text-xs text-white" asChild>
                                         <Link href={`/turmas/${turma.id}`}>
                                             Abrir Diário
                                         </Link>

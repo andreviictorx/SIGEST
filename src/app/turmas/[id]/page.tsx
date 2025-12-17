@@ -57,7 +57,7 @@ export default async function detalhesTurmas({ params }: PageProps) {
 
     const idsMatriculados = new Set(turma.matriculas.map(m => m.alunoId));
     const alunosParaMatricular = todosAlunos.filter(a => !idsMatriculados.has(a.id));
-    const getInitials = (name: string) => name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
+
 
     return (
         <div className="p-8 space-y-8 bg-slate-50/50 min-h-screen">
