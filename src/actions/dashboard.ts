@@ -22,7 +22,7 @@ export async function getAdminDashboardMetrics() {
           }
         }
       }
-    })
+    })  
   ]);
 
   return {

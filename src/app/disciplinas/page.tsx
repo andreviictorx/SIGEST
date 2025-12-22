@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Search } from "lucide-react";
 import { DisciplinaCard } from "./_components/disciplina-card";
 import { DisciplinasToolbar } from "./_components/disciplinas-toolbar";
+import { getDisiciplinas } from "@/actions/disciplina";
 
 
 
@@ -20,30 +20,7 @@ export default async function DisciplinasPage(props: Props) {
     const query = searchParams?.q || "";
     const statusFilter = searchParams?.status || "todos";
 
-
-    const whereCondition: any = {
-        OR: query
-            ? [
-                { nome: { contains: query, mode: "insensitive" } },
-                { codigo: { contains: query, mode: "insensitive" } },
-            ]
-            : undefined,
-    };
-
-    if (statusFilter === "ativos") {
-        whereCondition.ativo = true;
-    } else if (statusFilter === "inativos") {
-        whereCondition.ativo = false;
-    }
-
-
-    const disciplinas = await prisma.disciplina.findMany({
-        where: whereCondition,
-        orderBy: { nome: "asc" },
-        include: {_count: {
-            select: {turmas:true}
-        }},
-    });
+    const disciplinas = await getDisiciplinas(query, statusFilter)
 
     return (
         <div className="space-y-6 pb-20 max-w-5xl mx-auto">

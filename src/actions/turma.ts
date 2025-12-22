@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { turmaSchema, TurmaSchema } from "@/lib/schema";
+import { buildSearchFilter } from "@/lib/search-filter";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { success } from "zod";
@@ -94,4 +95,30 @@ export async function removerMatriculaAction(matriculaId: string, turmaId: strin
     console.error(error);
     return { sucesso: false, erro: "Erro ao remover matrícula." };
   }
+}
+
+export async function getTurmas(query: string = "", status: string = "todos"){
+   const whereCondition = buildSearchFilter(query, status, [
+     "nome",
+     "codigo",
+   ]);
+    const [turmas, professores, disciplinas] = await Promise.all([
+        prisma.turma.findMany({
+            where: whereCondition,
+            include: {
+                professor: true,
+                disciplina: true,
+                _count: {select:{matriculas:true}}
+            },
+            orderBy: { nome: 'asc' }
+        }),
+        prisma.professor.findMany({ where: { ativo: true }, orderBy: { nome: 'asc' } }),
+        prisma.disciplina.findMany({ orderBy: { nome: 'asc' } }),
+    ]);
+
+    return {
+      turmas,
+      professores,
+      disciplinas
+    }
 }

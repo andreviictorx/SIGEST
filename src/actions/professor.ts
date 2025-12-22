@@ -1,6 +1,7 @@
-'use server'
+"use server";
 import { prisma } from "@/lib/prisma";
 import { professorSchema, ProfessorSchema } from "@/lib/schema";
+import { buildSearchFilter } from "@/lib/search-filter";
 import { revalidatePath } from "next/cache";
 
 export async function criarProfessorAction(data: ProfessorSchema) {
@@ -29,7 +30,10 @@ export async function criarProfessorAction(data: ProfessorSchema) {
   }
 }
 
-export async function alterarStatusProfessorAction(id: string, novoStatus: boolean) {
+export async function alterarStatusProfessorAction(
+  id: string,
+  novoStatus: boolean
+) {
   try {
     await prisma.professor.update({
       where: { id },
@@ -41,4 +45,24 @@ export async function alterarStatusProfessorAction(id: string, novoStatus: boole
     console.error(error);
     return { sucesso: false, erro: "Erro ao inativar professor." };
   }
+}
+
+export async function getProfessores(
+  query: string = "",
+  status: string = "todos"
+) {
+  const whereCondition = buildSearchFilter(query, status, [
+    "nome",
+    "matricula",
+  ]);
+  const professores = await prisma.professor.findMany({
+    where: whereCondition,
+    orderBy: { nome: "asc" },
+    include: {
+      turmas: {
+        select: { nome: true },
+      },
+    },
+  });
+  return professores;
 }

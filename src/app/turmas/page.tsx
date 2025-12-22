@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Search } from "lucide-react";
 import { TurmasToolbar } from "./_components/turma-toolbar";
 import { TurmaCard } from "./_components/turma-card";
+import { getTurmas } from "@/actions/turma";
 
 type Props = {
     searchParams: Promise<{ q?: string, status?: string }>;
@@ -16,32 +16,8 @@ export default async function PageTurmas({ searchParams }: Props) {
     const params = await searchParams;
     const query = params?.q || "";
     const statusFilter = (await searchParams)?.status || "todos";
-
-    const whereCondition: any = {
-        OR: query
-            ? [
-                { nome: { contains: query, mode: "insensitive" } },
-                { codigo: { contains: query, mode: "insensitive" } },
-            ]
-            : undefined,
-    };
-
-    if (statusFilter === "ativos") whereCondition.ativo = true;
-    if (statusFilter === "inativos") whereCondition.ativo = false;
-
-    const [turmas, professores, disciplinas] = await Promise.all([
-        prisma.turma.findMany({
-            where: whereCondition,
-            include: {
-                professor: true,
-                disciplina: true,
-                _count: {select:{matriculas:true}}
-            },
-            orderBy: { nome: 'asc' }
-        }),
-        prisma.professor.findMany({ where: { ativo: true }, orderBy: { nome: 'asc' } }),
-        prisma.disciplina.findMany({ orderBy: { nome: 'asc' } }),
-    ]);
+    const {turmas, professores, disciplinas} = await getTurmas(query, statusFilter)
+    
     return (
         <div className="space-y-6 pb-20 max-w-5xl mx-auto">
             <TurmasToolbar professores={professores} disciplinas={disciplinas} />

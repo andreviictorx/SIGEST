@@ -1,11 +1,9 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Search, Plus, SlidersHorizontal } from "lucide-react";
 import { AlunoCard } from "./_components/aluno-card";
 import { AlunosToolbar } from "./_components/alunos-toolbar";
+import { getAlunos } from "@/actions/alunos";
 
 
 type Props = {
@@ -21,38 +19,7 @@ export default async function AlunosPage(props: Props) {
   const query = searchParams?.q || "";
   const statusFilter = searchParams?.status || "todos";
 
-
-  const whereCondition: any = {
-    OR: query
-      ? [
-        { nome: { contains: query, mode: "insensitive" } },
-        { matricula: { contains: query, mode: "insensitive" } },
-      ]
-      : undefined,
-  };
-
-  if (statusFilter === "ativos") {
-    whereCondition.ativo = true;
-  } else if (statusFilter === "inativos") {
-    whereCondition.ativo = false;
-  }
-
-
-  const alunos = await prisma.aluno.findMany({
-    where: whereCondition,
-    orderBy: { nome: "asc" },
-    include: {
-      matriculas: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        include: {
-          turma: {
-            select: { nome: true }
-          }
-        }
-      }
-    }
-  });
+  const alunos = await getAlunos(query, statusFilter)
 
   return (
     <div className="space-y-6 pb-20 max-w-5xl mx-auto">

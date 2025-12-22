@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { disciplinaSchema, DisciplinaSchema } from "@/lib/schema";
+import { buildSearchFilter } from "@/lib/search-filter";
 import { revalidatePath } from "next/cache";
 
 
@@ -43,4 +44,21 @@ export async function alterarStatusDisciplinaAction(id: string, novoStatus: bool
     console.error(error);
     return { sucesso: false, erro: "Erro ao inativar disciplina." };
   }
+}
+
+export async function getDisiciplinas(query: string = "", status: string = "todos"){
+   const whereCondition = buildSearchFilter(query, status, [
+     "nome",
+     "codigo",
+   ]);
+    const disciplinas = await prisma.disciplina.findMany({
+      where: whereCondition,
+      orderBy: { nome: "asc" },
+      include: {
+        _count: {
+          select: { turmas: true },
+        },
+      },
+    });
+    return disciplinas
 }

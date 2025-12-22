@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { alunoSchema, AlunoSchema } from "@/lib/schema";
+import { buildSearchFilter } from "@/lib/search-filter";
 import { revalidatePath } from "next/cache";
 
 export async function criarAlunoAction(data: AlunoSchema) {
@@ -43,4 +44,28 @@ export async function alterarStatusAlunoAction(id: string, novoStatus: boolean) 
     console.error(error);
     return { sucesso: false, erro: "Erro ao inativar aluno." };
   }
+}
+
+
+export async function getAlunos(query: string = "", status: string = "todos") {
+  
+  const whereCondition = buildSearchFilter(query, status, ["nome", "matricula"]);
+
+  const alunos = await prisma.aluno.findMany({
+    where: whereCondition,
+    orderBy: { nome: "asc" },
+    include: {
+      matriculas: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        include: {
+          turma: {
+            select: { nome: true }
+          }
+        }
+      }
+    }
+  });
+  return alunos;
+
 }

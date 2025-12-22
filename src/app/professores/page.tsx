@@ -1,10 +1,9 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Search } from "lucide-react";
 import { ProfessorCard } from "./_components/professor-card";
 import { ProfessoresToolbar } from "./_components/professores-toolbar";
-
+import { getProfessores } from "@/actions/professor";
 
 
 type Props = {
@@ -19,33 +18,7 @@ export default async function ProfessoresPage(props: Props) {
 
   const query = searchParams?.q || "";
   const statusFilter = searchParams?.status || "todos";
-
-
-  const whereCondition: any = {
-    OR: query
-      ? [
-        { nome: { contains: query, mode: "insensitive" } },
-        { matricula: { contains: query, mode: "insensitive" } },
-      ]
-      : undefined,
-  };
-
-  if (statusFilter === "ativos") {
-    whereCondition.ativo = true;
-  } else if (statusFilter === "inativos") {
-    whereCondition.ativo = false;
-  }
-
-
-  const professores = await prisma.professor.findMany({
-    where: whereCondition,
-    orderBy: { nome: "asc" },
-    include: {
-          turmas: {
-            select: { nome: true , }
-          } 
-        }
-    });
+  const professores = await getProfessores(query, statusFilter)
 
   return (
     <div className="space-y-6 pb-20 max-w-5xl mx-auto">
