@@ -42,8 +42,8 @@ export function ProfessoresToolbar() {
 
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Alunos</h1>
-                    <p className="text-slate-500 font-medium">Gestão de matrículas</p>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Professores</h1>
+                    <p className="text-slate-500 font-medium">Gestão de professores</p>
                 </div>
                 <ProfessorForm/>
             </div>

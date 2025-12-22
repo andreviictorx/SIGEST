@@ -11,7 +11,7 @@ type Props = {
   searchParams: Promise<{ q?: string; status?: string }>;
 };
 
-export default async function AlunosPage(props: Props) {
+export default async function ProfessoresPage(props: Props) {
   const session = await auth();
   if (!session) redirect("/login");
 
@@ -56,7 +56,7 @@ export default async function AlunosPage(props: Props) {
           <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <Search className="h-8 w-8 text-slate-400" />
           </div>
-          <h3 className="text-slate-900 font-bold text-lg">Nenhum aluno encontrado</h3>
+          <h3 className="text-slate-900 font-bold text-lg">Nenhum professor encontrado</h3>
           <p className="text-slate-500 max-w-xs mx-auto mt-2">
             Tente ajustar os filtros ou a busca por nome/matrícula.
           </p>

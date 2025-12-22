@@ -26,10 +26,10 @@ export function AlunoCard({ data }: AlunoCardProps) {
         : "bg-red-100 text-red-700 border-red-200";
 
     return (
-        <div className="group bg-white p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all flex items-center gap-4">
+        <div className="group bg-white p-7 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all flex items-center gap-4">
 
             <div className="relative shrink-0">
-                <Avatar className="h-14 w-14 border-4 border-slate-50 shadow-inner">
+                <Avatar className="h-12 w-12 border-4 border-slate-50 shadow-inner">
                     <AvatarFallback className="bg-slate-100 text-slate-500 font-bold text-xl">
                         {iniciais}
                     </AvatarFallback>

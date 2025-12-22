@@ -6,14 +6,9 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import FilterButton from "./filter-button";
-import { TurmaForm } from "./turma-form";
+import { DisciplinaForm } from "./disciplina-form";
 
-interface TurmasToolbarProps {
-    professores: { id: string; nome: string }[];
-    disciplinas: { id: string; nome: string }[];
-}
-
-export function TurmasToolbar({professores, disciplinas}: TurmasToolbarProps ) {
+export function DisciplinasToolbar() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -47,10 +42,10 @@ export function TurmasToolbar({professores, disciplinas}: TurmasToolbarProps ) {
 
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Turmas</h1>
-                    <p className="text-slate-500 font-medium">Gestão de turmas</p>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Disciplinas</h1>
+                    <p className="text-slate-500 font-medium">Gestão de disciplinas</p>
                 </div>
-                <TurmaForm professores={professores} disciplinas={disciplinas}/>
+                <DisciplinaForm />
             </div>
 
 
