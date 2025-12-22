@@ -1,6 +1,4 @@
-import { BookType, MoreHorizontal, School, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { BookType, School, Clock } from "lucide-react";
 import { ActionsCellDisciplinas } from "./actions-cell-disciplina";
 
 interface DisciplinaCardProps {

@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
-import FilterButton from "./filter-button";
+
 import { TurmaForm } from "./turma-form";
+import FilterButton from "@/components/filter-button";
 
 interface TurmasToolbarProps {
     professores: { id: string; nome: string }[];
