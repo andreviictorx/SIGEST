@@ -43,7 +43,7 @@ export default async function AlunosPage(props: Props) {
     include: {
           turmas: {
             select: { nome: true , }
-          }
+          } 
         }
     });
 
