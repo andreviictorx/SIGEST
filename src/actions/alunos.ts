@@ -32,7 +32,35 @@ export async function criarAlunoAction(data: AlunoSchema) {
   }
 }
 
-export async function alterarStatusAlunoAction(id: string, novoStatus: boolean) {
+export async function atualizarAlunoAction(id: string, data: AlunoSchema) {
+  const result = alunoSchema.safeParse(data);
+  if (!result.success) {
+    return { success: false, erro: "Dados invalidos no servidor" };
+  }
+  try {
+    await prisma.aluno.update({
+      where: { id },
+      data: {
+        nome: result.data.nome,
+        email: result.data.email,
+        matricula: result.data.matricula,
+      },
+    });
+    revalidatePath("/alunos")
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      erro: "Erro ao criar: Email ou Matrícula já existem.",
+    };
+  }
+}
+
+export async function alterarStatusAlunoAction(
+  id: string,
+  novoStatus: boolean
+) {
   try {
     await prisma.aluno.update({
       where: { id },
@@ -46,10 +74,11 @@ export async function alterarStatusAlunoAction(id: string, novoStatus: boolean) 
   }
 }
 
-
 export async function getAlunos(query: string = "", status: string = "todos") {
-  
-  const whereCondition = buildSearchFilter(query, status, ["nome", "matricula"]);
+  const whereCondition = buildSearchFilter(query, status, [
+    "nome",
+    "matricula",
+  ]);
 
   const alunos = await prisma.aluno.findMany({
     where: whereCondition,
@@ -60,12 +89,11 @@ export async function getAlunos(query: string = "", status: string = "todos") {
         take: 1,
         include: {
           turma: {
-            select: { nome: true }
-          }
-        }
-      }
-    }
+            select: { nome: true },
+          },
+        },
+      },
+    },
   });
   return alunos;
-
 }

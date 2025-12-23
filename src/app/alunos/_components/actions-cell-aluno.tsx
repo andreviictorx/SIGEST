@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Pencil, Trash2, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
-import { alterarStatusAlunoAction } from "@/actions/alunos";
+import { alterarStatusAlunoAction, atualizarAlunoAction } from "@/actions/alunos";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,11 +21,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AlunoForm } from "./aluno-form";
 
 interface ActionsCellProps {
     aluno: {
-        id: string;
-        nome: string;
+        id: string,
+        nome: string,
+        email:string,
+        matricula:string
         ativo: boolean; 
     }
 }
@@ -59,14 +62,7 @@ export function ActionsCellAluno({ aluno }: ActionsCellProps) {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
-                            onClick={() => toast.info("Edição em breve...")}
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Button>
+                        <AlunoForm alunoData={aluno}/>
                     </TooltipTrigger>
                 </Tooltip>
             </TooltipProvider>

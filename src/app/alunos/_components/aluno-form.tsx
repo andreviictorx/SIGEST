@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alunoSchema, AlunoSchema } from "@/lib/schema";
-import { criarAlunoAction } from "@/actions/alunos";
+import { atualizarAlunoAction, criarAlunoAction } from "@/actions/alunos";
 
 import {
     Dialog,
@@ -24,35 +24,68 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
-export function AlunoForm() {
-    const [open, setOpen] = useState(false);
 
+interface AlunoDataForm {
+    alunoData: {
+        id: string;
+        nome: string;
+        email: string;
+        matricula: string 
+    }
+}
+export function AlunoForm({alunoData}: AlunoDataForm) {
+    const [open, setOpen] = useState(false);
+    const isEditing = !!alunoData;
     const form = useForm<AlunoSchema>({
         resolver: zodResolver(alunoSchema),
         defaultValues: {
-            nome: "",
-            email: "",
-            matricula: "",
-            telefone: "",
+            nome:"",
+            email:"",
+            matricula:""
         },
     });
-
-    async function onSubmit(values: AlunoSchema) {
-        const resultado = await criarAlunoAction(values);
-
-        if (resultado.sucesso) {
-            setOpen(false);
-            form.reset();
-            toast.success('Aluno matriculado com sucesso',{
-                description: `O aluno ${values.nome} já está na lista`
-            })
-        } else {
-            toast.error("Falha ao matricular", {
-                description: resultado.erro,
+    useEffect(() => {
+        if (open) {
+            form.reset({
+                nome: alunoData?.nome || "",
+                email: alunoData?.email || "",
+                matricula: alunoData?.matricula || "",
             });
+        }
+    }, [open, alunoData, form]);
+
+    
+    async function onSubmit(values: AlunoSchema) {
+        if(isEditing && alunoData){
+            const dados = await atualizarAlunoAction(alunoData.id, values)
+            if (dados?.success) {
+                setOpen(false);
+                form.reset();
+                toast.success('Aluno atualizado com sucesso', {
+                    description: `O aluno ${values.nome} foi atualizado e já está na lista`
+                })
+            } else {
+                toast.error("Falha ao atualizar", {
+                    description: dados?.erro,
+                });
+            }
+        }else{
+            const resultado = await criarAlunoAction(values);
+
+            if (resultado.sucesso) {
+                setOpen(false);
+                form.reset();
+                toast.success('Aluno matriculado com sucesso', {
+                    description: `O aluno ${values.nome} já está na lista`
+                })
+            } else {
+                toast.error("Falha ao matricular", {
+                    description: resultado.erro,
+                });
+            }
         }
     }
 
@@ -63,10 +96,20 @@ export function AlunoForm() {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChangeWrapper}>
-            <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
-                    <UserPlus className="mr-2 h-4 w-4 " /> Novo Aluno
-                </Button>
+            <DialogTrigger asChild> 
+                {isEditing ? (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
+                        <UserPlus className="mr-2 h-4 w-4" /> Novo Aluno
+                    </Button>
+                )}
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[500px] bg-white border border-slate-200 shadow-xl">
@@ -93,6 +136,7 @@ export function AlunoForm() {
                                             placeholder="Ex: Ana Souza"
                                             className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                             {...field}
+                                            value={field.value ?? ''}
                                         />
                                     </FormControl>
                                     <FormMessage className="text-red-500" />
@@ -113,6 +157,7 @@ export function AlunoForm() {
                                                 placeholder="ana@escola.com"
                                                 className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                                 {...field}
+                                                value={field.value ?? ''}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-500" />
@@ -132,6 +177,7 @@ export function AlunoForm() {
                                                 placeholder="2024001"
                                                 className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                                 {...field}
+                                                value={field.value ?? ''}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-500" />
@@ -152,6 +198,7 @@ export function AlunoForm() {
                                             placeholder="(11) 99999-9999"
                                             className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                             {...field}
+                                            value={field.value ?? ''}
                                         />
                                     </FormControl>
                                     <FormMessage className="text-red-500" />
@@ -160,19 +207,15 @@ export function AlunoForm() {
                         />
 
                         <div className="flex justify-end pt-2">
-                            <Button
+                         <Button
                                 type="submit"
                                 disabled={form.formState.isSubmitting}
-
                                 className="bg-green-600 hover:bg-green-700 text-white font-bold w-full sm:w-auto transition-all cursor-pointer"
                             >
                                 {form.formState.isSubmitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Matriculando...
-                                    </>
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>
                                 ) : (
-                                    "Confirmar Matrícula"
+                                    isEditing ? "Salvar Alterações" : "Confirmar Matrícula"
                                 )}
                             </Button>
                         </div>
