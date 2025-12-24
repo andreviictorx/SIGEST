@@ -4,10 +4,11 @@ import { professorSchema, ProfessorSchema } from "@/lib/schema";
 import { buildSearchFilter } from "@/lib/search-filter";
 import { revalidatePath } from "next/cache";
 
+
 export async function criarProfessorAction(data: ProfessorSchema) {
   const result = professorSchema.safeParse(data);
   if (!result.success) {
-    return { success: false, erro: "Dados invalidos no servidor" };
+    return { success: false, erro: "data invalidos no servidor" };
   }
 
   try {
@@ -23,6 +24,31 @@ export async function criarProfessorAction(data: ProfessorSchema) {
     return { success: true };
   } catch (error) {
     console.error(error);
+    return {
+      success: false,
+      erro: "Erro ao criar: Email ou Matrícula já existem.",
+    };
+  }
+}
+
+export async function alterarDadosProfessoresAction(id:string, data: ProfessorSchema){
+  const result = professorSchema.safeParse(data);
+  if(!result.success){
+    return {success: false, error: "Dados inválidos"}
+  }
+
+  try {
+    await prisma.professor.update({
+      where:{id},
+      data:{
+        nome: result.data.nome,
+        email:result.data.email,
+        matricula: result.data.matricula
+      }
+    })
+    revalidatePath("/professores");
+    return { success: true };
+  } catch (error) {
     return {
       success: false,
       erro: "Erro ao criar: Email ou Matrícula já existem.",

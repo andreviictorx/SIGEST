@@ -65,7 +65,7 @@ export function AlunoForm({alunoData}: AlunoDataForm) {
                 setOpen(false);
                 form.reset();
                 toast.success('Aluno atualizado com sucesso', {
-                    description: `O aluno ${values.nome} foi atualizado e já está na lista`
+                    description: `O aluno ${values.nome} foi atualizado e já na lista`
                 })
             } else {
                 toast.error("Falha ao atualizar", {

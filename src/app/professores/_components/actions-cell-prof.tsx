@@ -21,11 +21,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ProfessorForm } from "./professor-form";
 
 interface ActionsCellProps {
     professor: {
         id: string;
         nome: string;
+        email:string,
+        matricula:string
         ativo: boolean;
     }
 }
@@ -60,14 +63,7 @@ export function ActionsCellProfessor({ professor }: ActionsCellProps) {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
-                            onClick={() => toast.info("Edição em breve...")}
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Button>
+                       <ProfessorForm professorData={professor} />
                     </TooltipTrigger>
                 </Tooltip>
             </TooltipProvider>

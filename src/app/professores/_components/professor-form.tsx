@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { professorSchema, ProfessorSchema } from "@/lib/schema";
@@ -24,13 +24,23 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { criarProfessorAction } from "@/actions/professor";
+import { alterarDadosProfessoresAction, criarProfessorAction } from "@/actions/professor";
 
+interface ProfessorFormData {
+    professorData: {
+        id: string,
+        nome: string,
+        email: string,
+        matricula: string
+    }
+}
 
-export function ProfessorForm() {
+export function ProfessorForm({ professorData }: ProfessorFormData) {
     const [open, setOpen] = useState(false);
+    const isEditing = !!professorData;
+
 
     const form = useForm<ProfessorSchema>({
         resolver: zodResolver(professorSchema),
@@ -41,19 +51,44 @@ export function ProfessorForm() {
         },
     });
 
-    async function onSubmit(values: ProfessorSchema) {
-        const resultado = await criarProfessorAction(values);
-
-        if (resultado.success) {
-            setOpen(false);
-            form.reset();
-            toast.success('Professor  matriculado com sucesso', {
-                description: `Veja suas informações`
-            })
-        } else {
-            toast.error("Falha ao matricular", {
-                description: resultado.erro,
+    useEffect(() => {
+        if (open) {
+            form.reset({
+                nome: professorData.nome || "",
+                email: professorData.email || "",
+                matricula: professorData.matricula || "",
             });
+        }
+    }, [open, professorData, form]);
+
+    async function onSubmit(values: ProfessorSchema) {
+        if (isEditing && professorData) {
+            const result = await alterarDadosProfessoresAction(professorData.id, values);
+            if (result.success) {
+                setOpen(false);
+                form.reset();
+                toast.success('Dados do professor atualizado com sucesso', {
+                    description: `Veja suas informações`
+                })
+            } else {
+                toast.error("Falha ao atualizar os dados", {
+                    description: result.erro,
+                });
+            }
+        } else {
+            const result = await criarProfessorAction(values);
+
+            if (result.success) {
+                setOpen(false)
+                form.reset();
+                toast.success('Professor  matriculado com sucesso', {
+                    description: `Veja suas informações`
+                })
+            } else {
+                toast.error("Falha ao matricular", {
+                    description: result.erro,
+                });
+            }
         }
     }
 
@@ -65,19 +100,43 @@ export function ProfessorForm() {
     return (
         <Dialog open={open} onOpenChange={onOpenChangeWrapper}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
-                    <UserPlus className="mr-2 h-4 w-4 " /> Novo Professor
-                </Button>
+                {isEditing ? (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
+                        <UserPlus className="mr-2 h-4 w-4" /> Novo Professor
+                    </Button>
+                )}
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[500px] bg-white border border-slate-200 shadow-xl">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-slate-800">
-                        Criar professor
-                    </DialogTitle>
-                    <DialogDescription className="text-slate-500">
-                        Insira os dados cadastrais do novo professor.
-                    </DialogDescription>
+                    {isEditing ? (
+                        <>
+                            <DialogTitle className="text-xl font-bold text-slate-800">
+                                Editar professor
+                            </DialogTitle>
+                            <DialogDescription className="text-slate-500">
+                                Insira os dados atualizados do professor.
+                            </DialogDescription>
+                        </>
+                    ) : (
+                        <>
+                            <DialogTitle className="text-xl font-bold text-slate-800">
+                                Criar professor
+                            </DialogTitle>
+                            <DialogDescription className="text-slate-500">
+                                Insira os dados cadastrais do novo professor.
+                            </DialogDescription>
+                        </>
+                    )}
+
                 </DialogHeader>
 
                 <Form {...form}>
@@ -94,6 +153,7 @@ export function ProfessorForm() {
                                             placeholder="Ex: Paulo Silva"
                                             className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                             {...field}
+                                            value={field.value ?? ''}
                                         />
                                     </FormControl>
                                     <FormMessage className="text-red-500" />
@@ -114,6 +174,7 @@ export function ProfessorForm() {
                                                 placeholder="PR-545"
                                                 className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                                 {...field}
+                                                value={field.value ?? ''}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-500" />
@@ -133,6 +194,7 @@ export function ProfessorForm() {
                                                 placeholder="andre@gmail.com"
                                                 className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                                 {...field}
+                                                value={field.value ?? ''}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-500" />
@@ -146,16 +208,12 @@ export function ProfessorForm() {
                             <Button
                                 type="submit"
                                 disabled={form.formState.isSubmitting}
-
                                 className="bg-green-600 hover:bg-green-700 text-white font-bold w-full sm:w-auto transition-all cursor-pointer"
                             >
                                 {form.formState.isSubmitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Matriculando...
-                                    </>
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>
                                 ) : (
-                                    "Confirmar Matrícula"
+                                    isEditing ? "Salvar Alterações" : "Confirmar Matrícula"
                                 )}
                             </Button>
                         </div>
