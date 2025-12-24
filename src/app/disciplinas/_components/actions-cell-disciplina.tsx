@@ -19,11 +19,15 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { alterarStatusDisciplinaAction } from "@/actions/disciplina";
+import { DisciplinaCard } from "./disciplina-card";
+import { DisciplinaForm } from "./disciplina-form";
 
 interface ActionsCellProps {
     disciplina: {
         id: string;
         nome: string;
+        codigo:string,
+        cargaHoraria:number
         ativo: boolean;
     }
 }
@@ -57,14 +61,7 @@ export function ActionsCellDisciplinas({ disciplina }: ActionsCellProps) {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
-                            onClick={() => toast.info("Edição em breve...")}
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Button>
+                      <DisciplinaForm disciplinaData={disciplina}/>
                     </TooltipTrigger>
                 </Tooltip>
             </TooltipProvider>

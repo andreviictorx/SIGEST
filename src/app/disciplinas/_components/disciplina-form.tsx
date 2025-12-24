@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {  disciplinaSchema, DisciplinaSchema } from "@/lib/schema";
@@ -24,13 +24,23 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { criarDisciplinaAction } from "@/actions/disciplina";
+import { alterarDadosDisciplinaAction, criarDisciplinaAction } from "@/actions/disciplina";
 
+interface DisciplinaFormData {
+    disciplinaData:{
+        id:string,
+        nome:string,
+        cargaHoraria:number
+        codigo:string,
+    }
+}
 
-export function DisciplinaForm() {
+export function DisciplinaForm({disciplinaData}:DisciplinaFormData) {
     const [open, setOpen] = useState(false);
+    
+    const isEditing = !!disciplinaData;
 
     const form = useForm<DisciplinaSchema>({
         resolver: zodResolver(disciplinaSchema),
@@ -40,20 +50,43 @@ export function DisciplinaForm() {
             cargaHoraria:0
         },
     });
+    useEffect(()=>{
+        if (open) {
+            form.reset({
+                nome: disciplinaData.nome || "",
+                codigo: disciplinaData.codigo || "",
+                cargaHoraria: disciplinaData.cargaHoraria || 0,
+            });
+        }
+    },[open, disciplinaData, form])
 
     async function onSubmit(values: DisciplinaSchema) {
-        const resultado = await criarDisciplinaAction(values);
-
-        if (resultado.success) {
-            setOpen(false);
-            form.reset();
-            toast.success('Disciplina matriculado com sucesso', {
-                description: `A Disciplina ${values.nome} já está na lista`
-            })
-        } else {
-            toast.error("Falha ao matricular", {
-                description: resultado.erro,
-            });
+        if(isEditing && disciplinaData){
+            const result = await alterarDadosDisciplinaAction(disciplinaData.id, values);
+            if(result.success){
+                setOpen(false);
+                form.reset();
+                toast.success('Disciplina atualizada com sucesso', {
+                    description: `A Disciplina ${values.nome} já está na lista`
+                })
+            }else{
+                toast.error("Falha ao matricular", {
+                    description: result.erro,
+                }); 
+            }
+        }else{
+            const result = await criarDisciplinaAction(values);
+            if (result.success) {
+                setOpen(false);
+                form.reset();
+                toast.success('Disciplina matriculado com sucesso', {
+                    description: `A Disciplina ${values.nome} já está na lista`
+                })
+            } else {
+                toast.error("Falha ao matricular", {
+                    description: result.erro,
+                });
+            }
         }
     }
 
@@ -65,19 +98,42 @@ export function DisciplinaForm() {
     return (
         <Dialog open={open} onOpenChange={onOpenChangeWrapper}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
-                    <UserPlus className="mr-2 h-4 w-4 " /> Nova Disciplina
-                </Button>
+                {isEditing ? (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
+                        <UserPlus className="mr-2 h-4 w-4" /> Nova Disciplina
+                    </Button>
+                )}
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[500px] bg-white border border-slate-200 shadow-xl">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-slate-800">
-                        Criar Disciplina
-                    </DialogTitle>
-                    <DialogDescription className="text-slate-500">
-                        Insira os dados cadastrais da nova disciplina.
-                    </DialogDescription>
+                    {isEditing ? (
+                        <>
+                            <DialogTitle className="text-xl font-bold text-slate-800">
+                                Editar disciplinas
+                            </DialogTitle>
+                            <DialogDescription className="text-slate-500">
+                                Insira os dados atualizados da disciplina.
+                            </DialogDescription>
+                        </>
+                    ) : (
+                        <>
+                            <DialogTitle className="text-xl font-bold text-slate-800">
+                                Criar Disciplina
+                            </DialogTitle>
+                            <DialogDescription className="text-slate-500">
+                                Insira os dados da nova disciplina.
+                            </DialogDescription>
+                        </>
+                    )}
                 </DialogHeader>
 
                 <Form {...form}>
@@ -94,6 +150,7 @@ export function DisciplinaForm() {
                                             placeholder="Ex: Matematica"
                                             className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                             {...field}
+                                            value={field.value ?? ''}
                                         />
                                     </FormControl>
                                     <FormMessage className="text-red-500" />
@@ -114,6 +171,7 @@ export function DisciplinaForm() {
                                                 placeholder="MTM2025"
                                                 className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
                                                 {...field}
+                                                value={field.value ?? ''}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-500" />
@@ -138,6 +196,7 @@ export function DisciplinaForm() {
                                                     const value = e.target.value;
                                                     field.onChange(value === "" ? 0 : Number(value));
                                                 }}
+                                                value={field.value ?? 0}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-red-500" />
@@ -151,16 +210,12 @@ export function DisciplinaForm() {
                             <Button
                                 type="submit"
                                 disabled={form.formState.isSubmitting}
-
                                 className="bg-green-600 hover:bg-green-700 text-white font-bold w-full sm:w-auto transition-all cursor-pointer"
                             >
                                 {form.formState.isSubmitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Matriculando...
-                                    </>
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>
                                 ) : (
-                                    "Confirmar Matrícula"
+                                    isEditing ? "Salvar Alterações" : "Confirmar Matrícula"
                                 )}
                             </Button>
                         </div>
