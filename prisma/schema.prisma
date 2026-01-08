@@ -73,9 +73,7 @@ model Disciplina {
 
 model Matricula {
  id String @id @default(cuid())
- nota1 Float?
- nota2 Float?
- nota3 Float?
+ notas Nota[]
  frequencia Int?
  alunoId String
  aluno Aluno @relation(fields: [alunoId], references: [id])
@@ -89,6 +87,7 @@ model Turma{
  id String @id @default(cuid())
  nome String
  codigo String @unique
+ anoLetivo Int?
  disciplinaId String
  disciplina Disciplina @relation(fields: [disciplinaId], references: [id])
  professorId String
@@ -97,4 +96,15 @@ model Turma{
  ativo Boolean @default(true)
  createdAt DateTime @default(now()) 
  updatedAt DateTime @updatedAt
+}
+
+model Nota{
+ id          String    @id @default(cuid())
+ valor       Float
+ etapa       String    
+ matriculaId String
+ matricula   Matricula @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+ createdAt   DateTime  @default(now())
+ updatedAt   DateTime  @updatedAt
+ @@unique([matriculaId, etapa])
 }
