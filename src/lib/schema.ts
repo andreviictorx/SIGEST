@@ -59,3 +59,13 @@ export const usuarioSchema = z.object({
 });
 
 export type UsuarioSchema = z.infer<typeof usuarioSchema>;
+
+export const notasSchema = z.object({
+  matriculaId: z.string().min(1, "ID da matrícula é obrigatório"),
+  etapa: z
+    .string()
+    .min(2, "o nome da etapa deve possuir pelo menos 2 caracteres"),
+  valor: z.number().min(0).max(10),
+});
+
+export type NotasSchema = z.infer<typeof notasSchema>

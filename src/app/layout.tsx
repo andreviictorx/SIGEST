@@ -17,6 +17,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     { label: 'Professores', href: '/professores' },
     { label: 'Turmas', href: '/turmas' },
     { label: 'Disciplinas', href: '/disciplinas' },
+    { label: 'Notas', href: '/notas' },
   ];
 
 
