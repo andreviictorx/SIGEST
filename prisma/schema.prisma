@@ -74,7 +74,7 @@ model Disciplina {
 model Matricula {
  id String @id @default(cuid())
  notas Nota[]
- frequencia Int?
+ frequencia Frequencia[]
  alunoId String
  aluno Aluno @relation(fields: [alunoId], references: [id])
  turmaId String
@@ -107,4 +107,23 @@ model Nota{
  createdAt   DateTime  @default(now())
  updatedAt   DateTime  @updatedAt
  @@unique([matriculaId, etapa])
+}
+
+enum StatusFrequencia{
+  PRESENTE
+  AUSENTE
+  JUSTIFICADO
+}
+
+model Frequencia{
+ id String @id @default(cuid())
+ status StatusFrequencia @default(PRESENTE)
+ matriculaId String
+ matricula Matricula  @relation(fields: [matriculaId], references: [id])
+ data DateTime
+ createdAt   DateTime  @default(now())
+ updatedAt   DateTime  @updatedAt
+ @@unique([matriculaId, data])
+ @@index([matriculaId])
+ @@index([data])
 }
