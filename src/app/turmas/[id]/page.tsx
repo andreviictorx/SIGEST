@@ -1,30 +1,32 @@
-
 import { auth } from "@/auth"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import {
     GraduationCap,
     BookOpen,
-    CalendarDays,
     Hash,
     Users,
-    ArrowLeft
+    ArrowLeft,
+    CheckSquare,
+    ClipboardList
 } from "lucide-react";
-import { Separator } from "@radix-ui/react-select"
+import { Separator } from "@/components/ui/separator" 
 import { Button } from "@/components/ui/button"
 import { MatriculaForm } from "../_components/matricula-form"
 import { MatriculaItem } from "../_components/matricula-item"
+import { AttendanceManager } from "./_components/attendance-manager" 
+import { GradeManager } from "../../../components/grade-manager"
 
 interface PageProps {
     params: Promise<{ id: string }>
 }
 
-export default async function detalhesTurmas({ params }: PageProps) {
+export default async function DetalhesTurmaPage({ params }: PageProps) {
     const session = await auth()
     if (!session) {
         redirect('/login')
@@ -32,6 +34,7 @@ export default async function detalhesTurmas({ params }: PageProps) {
 
     const { id } = await params;
 
+  
     const [turma, todosAlunos] = await Promise.all([
         prisma.turma.findUnique({
             where: { id },
@@ -55,13 +58,17 @@ export default async function detalhesTurmas({ params }: PageProps) {
         notFound()
     }
 
+   
     const idsMatriculados = new Set(turma.matriculas.map(m => m.alunoId));
     const alunosParaMatricular = todosAlunos.filter(a => !idsMatriculados.has(a.id));
 
+  
+    const turmasParaFiltro = [{ id: turma.id, nome: turma.nome }];
 
     return (
         <div className="p-8 space-y-8 bg-slate-50/50 min-h-screen">
 
+           
             <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" asChild className="h-9 w-9 bg-white shadow-sm hover:bg-slate-50 border-slate-200">
                     <Link href="/turmas">
@@ -94,46 +101,84 @@ export default async function detalhesTurmas({ params }: PageProps) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                
-                <div className="lg:col-span-2 space-y-6">
-                    <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6 flex flex-row items-center justify-between">
-                            <div className="space-y-1">
-                                <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-blue-600" />
-                                    Alunos Matriculados
-                                </CardTitle>
-                                <p className="text-xs text-slate-500">
-                                    Total de {turma.matriculas.length} estudantes nesta turma.
-                                </p>
-                            </div>
+                <div className="lg:col-span-2">
+                    <Tabs defaultValue="alunos" className="w-full space-y-6">
 
-                          
-                            <MatriculaForm
+                        <TabsList className="grid w-full grid-cols-3 h-12 bg-white border border-slate-200 shadow-sm p-1 rounded-xl">
+                            <TabsTrigger value="alunos" className="rounded-lg data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 font-medium">
+                                <Users className="w-4 h-4 mr-2" /> Alunos
+                            </TabsTrigger>
+                            <TabsTrigger value="frequencia" className="rounded-lg data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 font-medium">
+                                <CheckSquare className="w-4 h-4 mr-2" /> Frequência
+                            </TabsTrigger>
+                            <TabsTrigger value="notas" className="rounded-lg data-[state=active]:bg-purple-50 data-[state=active]:text-purple-700 font-medium">
+                                <ClipboardList className="w-4 h-4 mr-2" /> Notas
+                            </TabsTrigger>
+                        </TabsList>
+
+                 
+                        <TabsContent value="alunos" className="mt-0 space-y-6 focus-visible:ring-0">
+                            <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
+                                <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6 flex flex-row items-center justify-between">
+                                    <div className="space-y-1">
+                                        <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-blue-600" />
+                                            Gerenciar Matrículas
+                                        </CardTitle>
+                                        <p className="text-xs text-slate-500">
+                                            Total de {turma.matriculas.length} estudantes nesta turma.
+                                        </p>
+                                    </div>
+                                    <MatriculaForm
+                                        turmaId={turma.id}
+                                        alunosDisponiveis={alunosParaMatricular}
+                                    />
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <ul className="divide-y divide-slate-100">
+                                        {turma.matriculas.length === 0 ? (
+                                            <div className="p-8 text-center text-slate-500 text-sm">
+                                                Nenhum aluno matriculado ainda.
+                                            </div>
+                                        ) : (
+                                            turma.matriculas.map((matricula) => (
+                                                <MatriculaItem key={matricula.id} matricula={matricula} />
+                                            ))
+                                        )}
+                                    </ul>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
+                       
+                        <TabsContent value="frequencia" className="mt-0 focus-visible:ring-0">
+                            
+                            <AttendanceManager
                                 turmaId={turma.id}
-                                alunosDisponiveis={alunosParaMatricular}
+                                nomeTurma={turma.nome}
                             />
-                        </CardHeader>
+                        </TabsContent>
 
-                        <CardContent className="p-0">
-                            <ul className="divide-y divide-slate-100">
-                                {turma.matriculas.map((matricula) => (
-                                    <MatriculaItem key={matricula.id} matricula={matricula} />
-                                ))}
-                            </ul>
-                        </CardContent>
-                    </Card>
+                        
+                        <TabsContent value="notas" className="mt-0 focus-visible:ring-0">
+                            
+                            <GradeManager
+                                turmasIniciais={turmasParaFiltro}
+                            />
+                        </TabsContent>
+
+                    </Tabs>
                 </div>
 
-               
+           
                 <div className="space-y-6">
-                    <Card className="border-slate-200 shadow-sm bg-white">
+                    <Card className="border-slate-200 shadow-sm bg-white sticky top-8">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">
                                 Dados da Turma
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-4 text-sm">
-
                             <div className="flex items-center gap-3">
                                 <div className="h-8 w-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600">
                                     <GraduationCap className="h-4 w-4" />
@@ -143,9 +188,7 @@ export default async function detalhesTurmas({ params }: PageProps) {
                                     <p className="text-slate-500">{turma.professor.nome}</p>
                                 </div>
                             </div>
-
                             <Separator className="bg-slate-100" />
-
                             <div className="flex items-center gap-3">
                                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
                                     <BookOpen className="h-4 w-4" />
@@ -155,9 +198,7 @@ export default async function detalhesTurmas({ params }: PageProps) {
                                     <p className="text-slate-500">{turma.disciplina.nome}</p>
                                 </div>
                             </div>
-
                             <Separator className="bg-slate-100" />
-
                             <div className="flex items-center gap-3">
                                 <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
                                     <Hash className="h-4 w-4" />
@@ -167,13 +208,10 @@ export default async function detalhesTurmas({ params }: PageProps) {
                                     <p className="text-slate-500 font-mono">{turma.codigo}</p>
                                 </div>
                             </div>
-
                         </CardContent>
                     </Card>
                 </div>
-
             </div>
         </div>
     );
 }
-
