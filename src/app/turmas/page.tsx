@@ -18,6 +18,7 @@ export default async function PageTurmas({ searchParams }: Props) {
     const statusFilter = (await searchParams)?.status || "todos";
     const {turmas, professores, disciplinas} = await getTurmas(query, statusFilter)
     
+    
     return (
         <div className="space-y-6 pb-20 max-w-5xl mx-auto">
             <TurmasToolbar professores={professores} disciplinas={disciplinas} />

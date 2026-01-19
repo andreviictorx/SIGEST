@@ -1,34 +1,82 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
+
+export interface ChartData {
+  nome: string;
+  notaMedia: number;
+  frequenciaMedia: number;
+  totalAlunos: number;
+}
 
 export async function getAdminDashboardMetrics() {
   const [
-    quantidadeTotalAlunos,
-    quantidadeTotalProfessores,
-    quantidadeTurmasAtivas,
-    matriculasRecentes
+    totalAlunos,
+    totalProfessores,
+    totalTurmas,
+    matriculasRecentes,
+    turmasDetalhadas,
   ] = await Promise.all([
     prisma.aluno.count({ where: { ativo: true } }),
     prisma.professor.count({ where: { ativo: true } }),
     prisma.turma.count({ where: { ativo: true } }),
     prisma.matricula.findMany({
       take: 5,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         aluno: { select: { nome: true } },
-        turma: {
-          select: {
-            nome: true,
-            disciplina: { select: { nome: true } }
-          }
-        }
-      }
-    })  
+        turma: { include: { disciplina: { select: { nome: true } } } },
+      },
+    }),
+    prisma.turma.findMany({
+      where: { ativo: true },
+      take: 7,
+      include: {
+        disciplina: { select: { nome: true } },
+        matriculas: {
+          include: {
+            notas: { select: { valor: true } },
+            frequencia: { select: { status: true } },
+          },
+        },
+      },
+    }),
   ]);
 
+  const graficoDesempenho: ChartData[] = turmasDetalhadas.map((turma) => {
+    let somaNotas = 0;
+    let qtdNotas = 0;
+    let totalAulasComputadas = 0;
+    let totalPresencas = 0;
+
+    turma.matriculas.forEach((matr) => {
+      matr.notas.forEach((n) => {
+        somaNotas += Number(n.valor);
+        qtdNotas++;
+      });
+      matr.frequencia.forEach((f) => {
+        totalAulasComputadas++;
+        if (f.status === "PRESENTE" || f.status === "JUSTIFICADO")
+          totalPresencas++;
+      });
+    });
+
+    return {
+      nome: turma.disciplina.nome,
+      notaMedia: qtdNotas > 0 ? Number((somaNotas / qtdNotas).toFixed(1)) : 0,
+      frequenciaMedia:
+        totalAulasComputadas > 0
+          ? Math.round((totalPresencas / totalAulasComputadas) * 100)
+          : 100,
+      totalAlunos: turma.matriculas.length,
+    };
+  });
+
   return {
-    quantidadeTotalAlunos,
-    quantidadeTotalProfessores,
-    quantidadeTurmasAtivas,
-    matriculasRecentes
+    quantidadeTotalAlunos: totalAlunos,
+    quantidadeTotalProfessores: totalProfessores,
+    quantidadeTurmasAtivas: totalTurmas,
+    matriculasRecentes,
+    graficoDesempenho,
   };
 }

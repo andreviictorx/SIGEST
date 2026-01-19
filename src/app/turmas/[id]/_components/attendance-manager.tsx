@@ -51,9 +51,9 @@ export function AttendanceManager({ turmaId }: AttendanceManagerProps) {
         let presentes = 0
         let ausentes = 0
         alunos.forEach(aluno => {
-            const s = getStatus(aluno)
-            if (s === "PRESENTE" || s === "JUSTIFICADO") presentes++
-            if (s === "AUSENTE") ausentes++
+            const status = getStatus(aluno)
+            if (status === "PRESENTE" || status === "JUSTIFICADO") presentes++
+            if (status === "AUSENTE") ausentes++
         })
         return { presentes, ausentes }
     }, [alunos, draft])
@@ -63,12 +63,11 @@ export function AttendanceManager({ turmaId }: AttendanceManagerProps) {
         if (!hasChanges) return
         setIsSaving(true)
         try {
-          
             const payload = alunos.map(aluno => ({
                 matriculaId: aluno.matriculaId,
                 status: getStatus(aluno)
             }))
-
+            // pega so os dados necesarios, matricula do aluno e o status
             const resultado = await salvarFrequenciaEmMassaAction(payload, turmaId, dataSelecionada)
 
             if (!resultado.success) throw new Error(resultado.erro)
@@ -77,9 +76,9 @@ export function AttendanceManager({ turmaId }: AttendanceManagerProps) {
                 description: `${stats.presentes} presentes, ${stats.ausentes} ausentes.`
             })
 
-         
             setAlunos(prev => prev.map(a => ({ ...a, statusHoje: getStatus(a) })))
             setDraft({}) 
+            // atualiza o status que antes estava como "rascunho" de maneira permanente no banco
 
         } catch (error) {
             toast.error("Erro ao salvar. Tente novamente.")
