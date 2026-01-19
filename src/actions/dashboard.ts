@@ -80,3 +80,43 @@ export async function getAdminDashboardMetrics() {
     graficoDesempenho,
   };
 }
+
+
+export async function getProfessorDashboardData(email: string) {
+  const professor = await prisma.professor.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      nome: true,
+      turmas: {
+        where: { ativo: true },
+        orderBy: { disciplina: { nome: "asc" } }, 
+        include: {
+          disciplina: true,
+          _count: { select: { matriculas: true } },
+        },
+      },
+    },
+  });
+
+  if (!professor) {
+    return null;
+  }
+
+
+  const totalTurmas = professor.turmas.length;
+  const totalAlunos = professor.turmas.reduce(
+    (acc, t) => acc + t._count.matriculas,
+    0
+  );
+
+
+  return {
+    professor,
+    turmas: professor.turmas,
+    stats: {
+      totalTurmas,
+      totalAlunos,
+    },
+  };
+}

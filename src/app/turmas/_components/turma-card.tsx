@@ -1,21 +1,28 @@
 import { Users, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ActionsCellTurma } from "./actions-cell-turma";
-import Link from "next/link"; 
+import Link from "next/link";
 
 interface TurmaCardProps {
     data: {
-        id: string; 
+        id: string;
         nome: string;
         codigo: string;
         ativo: boolean;
+ 
         disciplina: { nome: string };
         professor: { nome: string };
+       
+        professorId: string;
+        disciplinaId: string;
         _count: { matriculas: number };
     };
+ 
+    professores: { id: string; nome: string }[];
+    disciplinas: { id: string; nome: string }[];
 }
 
-export function TurmaCard({ data }: TurmaCardProps) {
+export function TurmaCard({ data, professores, disciplinas }: TurmaCardProps) {
     const statusColor = data.ativo ? "text-green-700 bg-green-50" : "text-slate-500 bg-slate-100";
     const borderClass = data.ativo ? "border-l-amber-500" : "border-l-slate-300";
 
@@ -39,7 +46,6 @@ export function TurmaCard({ data }: TurmaCardProps) {
                     </div>
                 </div>
 
-         
                 <div className="flex items-center gap-2 mb-4 p-2 bg-slate-50 rounded-xl border border-slate-100">
                     <div className="bg-white p-1.5 rounded-full shadow-sm">
                         <GraduationCap className="h-4 w-4 text-purple-500" />
@@ -63,7 +69,12 @@ export function TurmaCard({ data }: TurmaCardProps) {
                             <Link href={`/turmas/${data.id}`}>Ver turma</Link>
                         </Button>
 
-                        <ActionsCellTurma turma={data} />
+                     
+                        <ActionsCellTurma
+                            turma={data}
+                            professores={professores}
+                            disciplinas={disciplinas}
+                        />
                     </div>
                 </div>
             </div>

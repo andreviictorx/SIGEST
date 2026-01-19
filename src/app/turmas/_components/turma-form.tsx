@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { turmaSchema, TurmaSchema } from "@/lib/schema";
-import { criarTurmaAction } from "@/actions/turma";
+import { criarTurmaAction, atualizarTurmaAction } from "@/actions/turma"; 
 import { toast } from "sonner";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -18,44 +18,74 @@ import { SubmitButton } from "@/components/SubmitButton";
 interface TurmaFormProps {
   professores: { id: string; nome: string }[];
   disciplinas: { id: string; nome: string }[];
+  initialData?: TurmaSchema & { id: string }; 
+  children?: React.ReactNode; 
 }
 
-export function TurmaForm({ professores, disciplinas }: TurmaFormProps) {
+export function TurmaForm({ professores, disciplinas, initialData, children }: TurmaFormProps) {
   const [open, setOpen] = useState(false);
+  const isEditing = !!initialData; 
 
   const form = useForm<TurmaSchema>({
     resolver: zodResolver(turmaSchema),
     defaultValues: {
-      nome: "",
-      codigo: "",
-      professorId: "",
-      disciplinaId: "",
+      nome: initialData?.nome || "",
+      codigo: initialData?.codigo || "",
+      professorId: initialData?.professorId || "",
+      disciplinaId: initialData?.disciplinaId || "",
     },
   });
 
-  async function onSubmit(values: TurmaSchema) {
-    const res = await criarTurmaAction(values);
-    if (res.success) {
-      toast.success("Turma criada com sucesso!");
-      setOpen(false);
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    if (!val) {
       form.reset();
+    } else if (initialData) {
+      form.reset({
+        nome: initialData.nome,
+        codigo: initialData.codigo,
+        professorId: initialData.professorId,
+        disciplinaId: initialData.disciplinaId,
+      });
+    }
+  };
+
+  async function onSubmit(values: TurmaSchema) {
+    let response;
+
+    if (isEditing && initialData) {
+      response = await atualizarTurmaAction(initialData.id, values);
     } else {
-      toast.error(res.erro);
+      response = await criarTurmaAction(values);
+    }
+
+    if (response.success) {
+      toast.success(isEditing ? "Turma atualizada!" : "Turma criada com sucesso!");
+      setOpen(false);
+      if (!isEditing) form.reset(); 
+    } else {
+      toast.error(response.erro);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={(val) => { setOpen(val); if(!val) form.reset(); }}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
-          <Plus className="mr-2 h-4 w-4" /> Nova Turma
-        </Button>
+       
+        {children ? children : (
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm cursor-pointer">
+            <Plus className="mr-2 h-4 w-4" /> Nova Turma
+          </Button>
+        )}
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[500px] bg-white border border-slate-200 shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-slate-800">Nova Turma</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-slate-800">
+            {isEditing ? "Editar Turma" : "Nova Turma"}
+          </DialogTitle>
           <DialogDescription className="text-slate-500">
-            Preencha os dados para abrir uma nova turma.
+            {isEditing ? "Altere os dados da turma abaixo." : "Preencha os dados para abrir uma nova turma."}
           </DialogDescription>
         </DialogHeader>
 
@@ -69,10 +99,10 @@ export function TurmaForm({ professores, disciplinas }: TurmaFormProps) {
                   <FormItem>
                     <FormLabel className="text-slate-700 font-semibold">Código</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="TUR-A" 
+                      <Input
+                        placeholder="TUR-A"
                         className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600 uppercase"
-                        {...field} 
+                        {...field}
                         onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                       />
                     </FormControl>
@@ -87,10 +117,10 @@ export function TurmaForm({ professores, disciplinas }: TurmaFormProps) {
                   <FormItem>
                     <FormLabel className="text-slate-700 font-semibold">Nome</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Manhã 2024" 
+                      <Input
+                        placeholder="Manhã 2024"
                         className="bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-600"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage className="text-red-500" />
@@ -98,19 +128,20 @@ export function TurmaForm({ professores, disciplinas }: TurmaFormProps) {
                 )}
               />
             </div>
+
+           
             <FormField
               control={form.control}
               name="disciplinaId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-slate-700 font-semibold">Disciplina</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-white border-slate-300 text-slate-900 focus:ring-blue-600 cursor-pointer">
                         <SelectValue placeholder="Selecione a disciplina" />
                       </SelectTrigger>
                     </FormControl>
-                   
                     <SelectContent className="bg-white border-slate-200 z-9999 max-h-[200px]">
                       {disciplinas.length > 0 ? (
                         disciplinas.map((d) => (
@@ -134,7 +165,7 @@ export function TurmaForm({ professores, disciplinas }: TurmaFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-slate-700 font-semibold">Professor Responsável</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-white border-slate-300 text-slate-900 focus:ring-blue-600 cursor-pointer">
                         <SelectValue placeholder="Selecione o professor" />
@@ -158,9 +189,9 @@ export function TurmaForm({ professores, disciplinas }: TurmaFormProps) {
             />
 
             <div className="flex justify-end pt-2">
-              <SubmitButton 
-                text="Criar Turma" 
-                isLoading={form.formState.isSubmitting} 
+              <SubmitButton
+                text={isEditing ? "Salvar Alterações" : "Criar Turma"}
+                isLoading={form.formState.isSubmitting}
                 className="bg-green-600 hover:bg-green-700 w-full sm:w-auto shadow-sm text-white cursor-pointer"
               />
             </div>

@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { turmaSchema, TurmaSchema } from "@/lib/schema";
 import { buildSearchFilter } from "@/lib/search-filter";
@@ -121,4 +122,34 @@ export async function getTurmas(query: string = "", status: string = "todos"){
       professores,
       disciplinas
     }
+}
+
+export async function atualizarTurmaAction(id:string, data: TurmaSchema){
+  const session = await auth()
+  if(!session) return { success: false, erro: "Não autorizado" };
+
+  const validation = turmaSchema.safeParse(data);
+  if (!validation.success) {
+    return { success: false, erro: "Dados inválidos." };
+  }
+
+  try {
+    await prisma.turma.update({
+      where: { id },
+      data: {
+        nome: data.nome,
+        codigo: data.codigo,
+        professorId: data.professorId,
+        disciplinaId: data.disciplinaId,
+      },
+    });
+
+    revalidatePath("/turmas"); 
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      erro: "Erro ao atualizar turma no banco de dados.",
+    };
+  }
 }

@@ -15,26 +15,32 @@ import {
     CheckSquare,
     ClipboardList
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator" 
+import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { MatriculaForm } from "../_components/matricula-form"
 import { MatriculaItem } from "../_components/matricula-item"
-import { AttendanceManager } from "./_components/attendance-manager" 
+import { AttendanceManager } from "./_components/attendance-manager"
 import { GradeManager } from "../../../components/grade-manager"
 
 interface PageProps {
     params: Promise<{ id: string }>
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function DetalhesTurmaPage({ params }: PageProps) {
+export default async function DetalhesTurmaPage({ params, searchParams }: PageProps) {
     const session = await auth()
     if (!session) {
         redirect('/login')
     }
 
-    const { id } = await params;
 
-  
+    const { id } = await params;
+    const resolvedSearchParams = await searchParams;
+
+    const tabParam = typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : null;
+    const validTabs = ['alunos', 'frequencia', 'notas'];
+    const activeTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'alunos';
+
     const [turma, todosAlunos] = await Promise.all([
         prisma.turma.findUnique({
             where: { id },
@@ -58,20 +64,18 @@ export default async function DetalhesTurmaPage({ params }: PageProps) {
         notFound()
     }
 
-   
     const idsMatriculados = new Set(turma.matriculas.map(m => m.alunoId));
     const alunosParaMatricular = todosAlunos.filter(a => !idsMatriculados.has(a.id));
 
-  
     const turmasParaFiltro = [{ id: turma.id, nome: turma.nome }];
 
     return (
         <div className="p-8 space-y-8 bg-slate-50/50 min-h-screen">
 
-           
+          
             <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" asChild className="h-9 w-9 bg-white shadow-sm hover:bg-slate-50 border-slate-200">
-                    <Link href="/turmas">
+                    <Link href="/dashboard"> 
                         <ArrowLeft className="h-4 w-4 text-slate-600" />
                     </Link>
                 </Button>
@@ -102,7 +106,8 @@ export default async function DetalhesTurmaPage({ params }: PageProps) {
 
                
                 <div className="lg:col-span-2">
-                    <Tabs defaultValue="alunos" className="w-full space-y-6">
+                  
+                    <Tabs defaultValue={activeTab} className="w-full space-y-6">
 
                         <TabsList className="grid w-full grid-cols-3 h-12 bg-white border border-slate-200 shadow-sm p-1 rounded-xl">
                             <TabsTrigger value="alunos" className="rounded-lg data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 font-medium">
@@ -116,7 +121,7 @@ export default async function DetalhesTurmaPage({ params }: PageProps) {
                             </TabsTrigger>
                         </TabsList>
 
-                 
+                        {/* Conteúdo Aba ALUNOS */}
                         <TabsContent value="alunos" className="mt-0 space-y-6 focus-visible:ring-0">
                             <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
                                 <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6 flex flex-row items-center justify-between">
@@ -150,18 +155,16 @@ export default async function DetalhesTurmaPage({ params }: PageProps) {
                             </Card>
                         </TabsContent>
 
-                       
+                      
                         <TabsContent value="frequencia" className="mt-0 focus-visible:ring-0">
-                            
                             <AttendanceManager
                                 turmaId={turma.id}
                                 nomeTurma={turma.nome}
                             />
                         </TabsContent>
 
-                        
+                      
                         <TabsContent value="notas" className="mt-0 focus-visible:ring-0">
-                            
                             <GradeManager
                                 turmasIniciais={turmasParaFiltro}
                             />
@@ -170,7 +173,7 @@ export default async function DetalhesTurmaPage({ params }: PageProps) {
                     </Tabs>
                 </div>
 
-           
+              
                 <div className="space-y-6">
                     <Card className="border-slate-200 shadow-sm bg-white sticky top-8">
                         <CardHeader className="pb-3">

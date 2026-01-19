@@ -16,9 +16,9 @@ export default async function PageTurmas({ searchParams }: Props) {
     const params = await searchParams;
     const query = params?.q || "";
     const statusFilter = (await searchParams)?.status || "todos";
-    const {turmas, professores, disciplinas} = await getTurmas(query, statusFilter)
-    
-    
+
+    const { turmas, professores, disciplinas } = await getTurmas(query, statusFilter)
+
     return (
         <div className="space-y-6 pb-20 max-w-5xl mx-auto">
             <TurmasToolbar professores={professores} disciplinas={disciplinas} />
@@ -28,7 +28,7 @@ export default async function PageTurmas({ searchParams }: Props) {
                     <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Search className="h-8 w-8 text-slate-400" />
                     </div>
-                    <h3 className="text-slate-900 font-bold text-lg">Nenhuma turma encontrado</h3>
+                    <h3 className="text-slate-900 font-bold text-lg">Nenhuma turma encontrada</h3>
                     <p className="text-slate-500 max-w-xs mx-auto mt-2">
                         Tente ajustar os filtros ou a busca por nome/matrícula.
                     </p>
@@ -36,7 +36,12 @@ export default async function PageTurmas({ searchParams }: Props) {
             ) : (
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 mt-4">
                     {turmas.map((turma) => (
-                        <TurmaCard key={turma.id} data={turma} />
+                        <TurmaCard
+                            key={turma.id}
+                            data={turma}
+                            professores={professores}
+                            disciplinas={disciplinas}
+                        />
                     ))}
                 </div>
             )}

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 import { useState, useTransition } from "react";
-import { Pencil, Trash2, Loader2, RefreshCcw, NotebookTabs } from "lucide-react"; 
+import { Pencil, Trash2, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
-import { alterarStatusTurmaAction } from "@/actions/turma"; 
+import { alterarStatusTurmaAction } from "@/actions/turma";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,22 +21,26 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
+import { TurmaForm } from "./turma-form"; 
 
 interface ActionsCellProps {
     turma: {
         id: string;
         nome: string;
+        codigo: string;       
+        professorId: string;  
+        disciplinaId: string; 
         ativo: boolean;
-    }
-
+    };
+ 
+    professores: { id: string; nome: string }[];
+    disciplinas: { id: string; nome: string }[];
 }
 
-export function ActionsCellTurma({ turma }: ActionsCellProps) {
+export function ActionsCellTurma({ turma, professores, disciplinas }: ActionsCellProps) {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
-   
     const novoStatus = !turma.ativo;
     const acaoTexto = turma.ativo ? "Inativar" : "Reativar";
     const corBotao = turma.ativo ? "text-red-600 hover:text-red-700 hover:bg-red-50" : "text-green-600 hover:text-green-700 hover:bg-green-50";
@@ -58,23 +62,31 @@ export function ActionsCellTurma({ turma }: ActionsCellProps) {
     return (
         <div className="flex items-center justify-end gap-2">
 
-    
+           
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
-                            onClick={() => toast.info("Edição em breve...")}
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Button>
+                      
+                        <span>
+                            <TurmaForm
+                                professores={professores}
+                                disciplinas={disciplinas}
+                                initialData={turma} 
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer"
+                                >
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                            </TurmaForm>
+                        </span>
                     </TooltipTrigger>
                 </Tooltip>
             </TooltipProvider>
 
-           
+        
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -85,7 +97,7 @@ export function ActionsCellTurma({ turma }: ActionsCellProps) {
                             onClick={() => setIsAlertOpen(true)}
                         >
                             {turma.ativo ? (
-                                    <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" />
                             ) : (
                                 <RefreshCcw className="h-4 w-4" />
                             )}
@@ -94,7 +106,6 @@ export function ActionsCellTurma({ turma }: ActionsCellProps) {
                 </Tooltip>
             </TooltipProvider>
 
-            
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>
